@@ -119,10 +119,13 @@ class Mvc extends BaseObject
             try
             {
                 //调用控制器
-                $this->CallAction(
+                $result = $this->CallAction(
                     $this->config->Mvc->ControllerNamespace,
                     $route->GetControllerName(),
                     $route->GetActionName());
+
+                //执行动作结果
+                $result->ExecuteResult($this->httpContext);
             }
             catch (UnknownClassException $e) {
                 throw new HttpException(404, $e->getMessage(), $e);
@@ -160,9 +163,11 @@ class Mvc extends BaseObject
             if($t instanceof HttpException) $response->SetStatusCode($t->getCode());
 
             list($controller, $action) = explode('/', $this->config->Mvc->Error);
-            $this->CallAction($this->config->Mvc->ControllerNamespace, $controller, $action, [
+            $result = $this->CallAction($this->config->Mvc->ControllerNamespace, $controller, $action, [
                 'statusCode' => $response->GetStatusCode(), 'exception' => $t
             ]);
+
+            $result->ExecuteResult($this->httpContext);
         }
 
         //发送头
@@ -178,13 +183,13 @@ class Mvc extends BaseObject
      * @param string $controller
      * @param string $action
      * @param array $pars
-     * @return mixed
+     * @return ActionResult
      * @throws UnknownClassException
      * @throws UnknownMethodException
      * @throws UnknownParameterException
      * @throws \ReflectionException
      */
-    private function CallAction(string $namespace, string $controller, string $action, array $pars = [])
+    private function CallAction(string $namespace, string $controller, string $action, array $pars = []): ActionResult
     {
         $method = $action;
         $class = "\\{$namespace}\\{$controller}Controller";
@@ -235,6 +240,14 @@ class Mvc extends BaseObject
         $obj->controllerName = $controller;
         $obj->httpContext = $this->httpContext;
         $obj->route = $this->route;
+
+        //动作执行前
+        $result = call_user_func_array([$obj, 'OnBeforeAction'], [$action]);
+        if (null !== $result)
+        {
+            //拦截
+            return $result;
+        }
 
         //动作参数
         $actionParams = [];
@@ -336,7 +349,9 @@ class Mvc extends BaseObject
             }
         }
 
-        return call_user_func_array([$obj, $method], $actionParams);
+        $result = call_user_func_array([$obj, $method], $actionParams);
+        $result = call_user_func_array([$obj, 'OnAfterAction'], [$action, $result]);
+        return $result;
     }
 
     /**

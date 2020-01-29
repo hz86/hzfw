@@ -2,16 +2,13 @@
 
 namespace frontend\controllers;
 use frontend\models\ErrorModel;
+use hzfw\web\ActionResult;
 use hzfw\web\Controller;
-use hzfw\web\Cookie;
-use hzfw\web\HttpContext;
-use hzfw\web\HttpException;
-use hzfw\web\Model;
 
 class SiteController extends Controller
 {
     //异常
-    public function Error(int $statusCode, ?\Throwable $exception = null)
+    public function Error(int $statusCode, ?\Throwable $exception = null): ActionResult
     {
         $model = new ErrorModel();
         {
@@ -22,7 +19,7 @@ class SiteController extends Controller
         return $this->View('', $model);
     }
 
-    public function Index()
+    public function Index(): ActionResult
     {
         return $this->View();
     }

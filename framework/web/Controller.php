@@ -36,130 +36,130 @@ class Controller extends BaseObject
     public Route $route;
 
     /**
-     * 视图
-     * @param string $viewName 视图名称或路径
-     * @param mixed $model
-     * @throws \ReflectionException
-     * @throws \hzfw\core\UnknownClassException
-     * @throws \hzfw\core\UnknownParameterException
+     * 执行动作前
+     * @param string $action
+     * @return ActionResult 返回非null则拦截
      */
-    public function View(string $viewName = '', $model = null)
+    public function OnBeforeAction(string $action): ?ActionResult
     {
-        $view = $this->httpContext->requestServices->GetService(View::ClassName());
-        $view->dirName = $this->controllerName;
-        $view->fileName = $this->actionName;
-        $this->Html($view->View($viewName, $model));
+        return null;
+    }
+
+    /**
+     * 执行动作后
+     * @param string $action
+     * @param ActionResult $result
+     * @return ActionResult
+     */
+    public function OnAfterAction(string $action, ActionResult $result): ActionResult
+    {
+        return $result;
     }
 
     /**
      * 视图
      * @param string $viewName 视图名称或路径
      * @param mixed $model
+     * @return ActionResult
      * @throws \ReflectionException
      * @throws \hzfw\core\UnknownClassException
      * @throws \hzfw\core\UnknownParameterException
      */
-    public function ViewPartial(string $viewName = '', $model = null)
+    public function View(string $viewName = '', $model = null): ActionResult
     {
         $view = $this->httpContext->requestServices->GetService(View::ClassName());
-        $view->dirName = $this->controllerName;
-        $view->fileName = $this->actionName;
-        $this->Html($view->ViewPartial($viewName, $model));
+        {
+            $view->fileName = $this->actionName;
+            $view->dirName = $this->controllerName;
+        }
+        return $this->Html($view->View($viewName, $model));
+    }
+
+    /**
+     * 视图
+     * @param string $viewName 视图名称或路径
+     * @param mixed $model
+     * @return ActionResult
+     * @throws \ReflectionException
+     * @throws \hzfw\core\UnknownClassException
+     * @throws \hzfw\core\UnknownParameterException
+     */
+    public function ViewPartial(string $viewName = '', $model = null): ActionResult
+    {
+        $view = $this->httpContext->requestServices->GetService(View::ClassName());
+        {
+            $view->fileName = $this->actionName;
+            $view->dirName = $this->controllerName;
+        }
+        return $this->Html($view->ViewPartial($viewName, $model));
     }
 
     /**
      * 返回JSON
      * @param mixed $content 内容
      * @param int $options json格式配置
+     * @return ActionResult
+     * @throws \Exception
      */
-    public function Json($content, int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+    public function Json($content, int $options = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE): ActionResult
     {
-        $httpContext = $this->httpContext;
-        $response = $httpContext->response;
-
-        $response->SetContent(json_encode($content, $options));
-        $response->SetContentType('application/json');
-
-        $stream = $response->GetContentStream();
-        if (null !== $stream)
-        {
-            $response->SetContentStream(null);
-            $stream->Dispose();
-            unset($stream);
-        }
+        return $this->File(json_encode($content, $options), 'application/json');
     }
 
     /**
      * 返回文本
      * @param string $content 内容
+     * @return ActionResult
+     * @throws \Exception
      */
-    public function Text(string $content)
+    public function Text(string $content): ActionResult
     {
-        $this->File($content, 'text/plain');
+        return $this->File($content, 'text/plain');
     }
 
     /**
      * 返回HTML
      * @param string $content 内容
+     * @return ActionResult
+     * @throws \Exception
      */
-    public function Html(string $content)
+    public function Html(string $content): ActionResult
     {
-        $this->File($content, 'text/html');
+        return $this->File($content, 'text/html');
     }
 
     /**
      * 返回文件
      * @param string $content 内容
-     * @param string $contentType（默认application/octet-stream）
+     * @param string $contentType（默认application /octet-stream）
+     * @return FileResult
+     * @throws \Exception
      */
-    public function File(string $content, ?string $contentType = null)
+    public function File(string $content, ?string $contentType = null): FileResult
     {
-        $httpContext = $this->httpContext;
-        $response = $httpContext->response;
-
-        if (null === $contentType) {
-            $contentType = 'application/octet-stream';
-        }
-
-        $response->SetContent($content);
-        $response->SetContentType($contentType);
-
-        $stream = $response->GetContentStream();
-        if (null !== $stream)
-        {
-            $response->SetContentStream(null);
-            $stream->Dispose();
-            unset($stream);
-        }
+        return new FileResult($content, $contentType);
     }
 
     /**
      * 返回文件
      * @param FileStream $stream
      * @param string $contentType 文件类型（默认application/octet-stream）
+     * @return FileStreamResult
      */
-    public function FileStream(FileStream $stream, ?string $contentType = null)
+    public function FileStream(FileStream $stream, ?string $contentType = null): FileStreamResult
     {
-        $httpContext = $this->httpContext;
-        $response = $httpContext->response;
-
-        if (null === $contentType) {
-            $contentType = 'application/octet-stream';
-        }
-
-        $response->SetContentStream($stream);
-        $response->SetContentType($contentType);
-        $response->SetContent('');
+        return new FileStreamResult($stream, $contentType);
     }
 
     /**
      * 重定向
      * @param string $url
      * @param int $statusCode
+     * @return RedirectResult
      */
-    public function Redirect(string $url, int $statusCode = 302)
+    public function Redirect(string $url, int $statusCode = 302): RedirectResult
     {
-        $this->httpContext->response->Redirect($url, $statusCode);
+        return new RedirectResult($url, $statusCode);
     }
 
     /**
@@ -167,43 +167,44 @@ class Controller extends BaseObject
      * @param string $routeName
      * @param array $params
      * @param int $statusCode
+     * @return RedirectResult
      * @throws HttpException
      */
-    public function RedirectRoute(string $routeName, array $params = [], int $statusCode = 302)
+    public function RedirectRoute(string $routeName, array $params = [], int $statusCode = 302): RedirectResult
     {
         $url = $this->route->CreateAbsoluteUrl($routeName, $params);
-        $this->httpContext->response->Redirect($url, $statusCode);
+        return new RedirectResult($url, $statusCode);
     }
 
     /**
      * StatusCode 200
      */
-    public function Ok()
+    public function Ok(): StatusCodeResult
     {
-        $this->httpContext->response->SetStatusCode(200);
+        return new StatusCodeResult(200);
     }
 
     /**
      * StatusCode 400
      */
-    public function BadRequest()
+    public function BadRequest(): StatusCodeResult
     {
-        $this->httpContext->response->SetStatusCode(400);
+        return new StatusCodeResult(400);
     }
 
     /**
      * StatusCode 404
      */
-    public function NotFound()
+    public function NotFound(): StatusCodeResult
     {
-        $this->httpContext->response->SetStatusCode(404);
+        return new StatusCodeResult(404);
     }
 
     /**
      * StatusCode 500
      */
-    public function ServerError()
+    public function ServerError(): StatusCodeResult
     {
-        $this->httpContext->response->SetStatusCode(500);
+        return new StatusCodeResult(500);
     }
 }
