@@ -1,0 +1,34 @@
+{
+	"Mvc": {
+		"Charset": "utf-8",
+		"key": "{20823B57-AA5C-4274-BDF0-F363C116E6F9}",
+		"ControllerNamespace": "frontend\\controllers",
+		"ViewComponentNamespace": "frontend\\viewcomponents",
+		"ViewPath": "frontend/views",
+		"Error": "Site/Error"
+	},
+	"Route": {
+		"Rules":[
+			{
+				"Name": "Index",
+				"Template": "",
+				"Defaults": {"Controller": "Site", "Action": "Index"}
+			},
+			{
+				"Name": "Test1",
+				"Template": "test1/<name>/",
+				"Defaults": {"Controller": "Site", "Action": "Test1"}
+			},
+			{
+				"Name": "Test2",
+				"Template": "test2/<id:\\d+>/",
+				"Defaults": {"Controller": "Site", "Action": "Test2"}
+			},
+			{
+				"Name": "Default",
+				"Template": "<Controller>/<Action>",
+				"Defaults": {}
+			}
+		]
+	}
+}
