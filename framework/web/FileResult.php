@@ -2,7 +2,6 @@
 
 namespace hzfw\web;
 
-
 class FileResult extends ActionResult
 {
     public string $content;

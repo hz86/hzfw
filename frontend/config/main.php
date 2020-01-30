@@ -4,6 +4,7 @@ use hzfw\web\Mvc;
 use hzfw\web\Config;
 use hzfw\core\ServiceCollection;
 use hzfw\core\ServiceProvider;
+use hzfw\web\MiddlewareManager;
 
 hzfw::Services(function (ServiceCollection $service)
 {
@@ -19,5 +20,7 @@ hzfw::Services(function (ServiceCollection $service)
 hzfw::Run(function (ServiceProvider $app)
 {
     // Mvc
-    Mvc::Use($app);
+    Mvc::Use($app, function (MiddlewareManager $middlewareManager) {
+        $middlewareManager->Add(new \frontend\middlewares\TestMiddleware());
+    });
 });
