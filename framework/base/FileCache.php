@@ -182,9 +182,9 @@ class FileCache extends Cache
         try
         {
             // 0 - 1000000
-            /*if (mt_rand(0, 1000000) >= $this->gcProbability * 10000) {
+            if (mt_rand(0, 1000000) >= $this->gcProbability * 10000) {
                 return;
-            }*/
+            }
 
             $now = time();
             $this->FileEach($this->path, function (string $filename) use ($now)
