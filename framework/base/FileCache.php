@@ -2,6 +2,11 @@
 
 namespace hzfw\base;
 
+/**
+ * 文件缓存
+ * Class FileCache
+ * @package hzfw\base
+ */
 class FileCache extends Cache
 {
     /**

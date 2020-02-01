@@ -12,3 +12,6 @@ $this->title = '标题';
 <div>
     <?= $this->ViewComponent('Test', ["par" => "456"]) ?>
 </div>
+<div>
+    <?= $this->route->CreateUrl('Default', ['Controller' => 'Test', 'Action' => 'Page']); ?>
+</div>

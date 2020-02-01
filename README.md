@@ -13,6 +13,7 @@ PHP依赖注入强类型框架 (PHP dependency injection strongly typed framewor
 配置文件 hzfw/frontend/config/main.php  
 配置文件 hzfw/frontend/config/config.json  
 控制器 hzfw/frontend/controllers  
+中间件 hzfw/frontend/middlewares  
 模型 hzfw/frontend/models  
 视图  hzfw/frontend/views  
 小部件 hzfw/frontend/viewcomponents  
@@ -54,58 +55,67 @@ IIS -------------------------------
 ## 配置说明
 ```
 {
-	"Mvc": {
-		//设置默认编码
-		"Charset": "utf-8",
+  "Mvc": {
+    //设置默认编码
+    "Charset": "utf-8",
 
-		//设置控制器命名空间
-		"ControllerNamespace": "frontend\\controllers",
-    
-		//设置小部件命名空间
-		"ViewComponentNamespace": "frontend\\viewcomponents",
-    
-		//设置视图目录
-		"ViewPath": "frontend/views",
-    
-		//设置默认错误页面
-		"Error": "Site/Error"
-	},
-	"Route": {
-		"Rules":[
-			{
-				//路由名称
-				"Name": "Index",
-        
-				//路由模板
-				"Template": "",
-        
-				//路由默认控制器和动作名称
-				"Defaults": {"Controller": "Site", "Action": "Index"}
-			},
-			{
-				//变量使用 <>符号表示
-				//例：/test1/asd/
-				"Name": "Test1",
-				"Template": "test1/<name>/",
-				"Defaults": {"Controller": "Site", "Action": "Test1"}
-			},
-			{
-				//变量支持正则匹配
-				//例：/test2/100/
-				"Name": "Test2",
-				"Template": "test2/<id:\\d+>/",
-				"Defaults": {"Controller": "Site", "Action": "Test2"}
-			},
-			{
-				//默认路由
-				//例：/site/index
-				//例：Action = TestTest, /site/test-test
-				"Name": "Default",
-				"Template": "<Controller>/<Action>",
-				"Defaults": {}
-			}
-		]
-	}
+    //设置控制器命名空间
+    "ControllerNamespace": "frontend\\controllers",
+
+    //设置小部件命名空间
+    "ViewComponentNamespace": "frontend\\viewcomponents",
+
+    //设置视图目录
+    "ViewPath": "frontend/views",
+
+    //设置默认错误页面
+    "Error": "Site/Error"
+  },
+  "Route": {
+    "Rules": [
+      {
+        //路由名称
+        "Name": "Index",
+
+        //路由模板
+        "Template": "",
+
+        //路由默认控制器和动作名称
+        "Defaults": {
+          "Controller": "Site",
+          "Action": "Index"
+        }
+      },
+      {
+        //变量使用 <>符号表示
+        //例：/test1/asd/
+        "Name": "Test1",
+        "Template": "test1/<name>/",
+        "Defaults": {
+          "Controller": "Site",
+          "Action": "Test1"
+        }
+      },
+      {
+        //变量支持正则匹配
+        //例：/test2/100/
+        "Name": "Test2",
+        "Template": "test2/<id:\\d+>/",
+        "Defaults": {
+          "Controller": "Site",
+          "Action": "Test2"
+        }
+      },
+      {
+        //默认路由
+        //例：/site/index
+        //例：Action = TestTest, /site/test-test
+        "Name": "Default",
+        "Template": "<Controller>/<Action>",
+        "Defaults": {}
+      }
+    ]
+  }
 }
 
 ```
@@ -140,12 +150,20 @@ use hzfw\web\Mvc;
 use hzfw\web\Config;
 use hzfw\core\ServiceCollection;
 use hzfw\core\ServiceProvider;
+use hzfw\web\MiddlewareManager;
+use hzfw\base\Logger;
+use hzfw\base\LogLevel;
 
 hzfw::Services(function (ServiceCollection $service)
 {
     // 加载配置
     $service->AddSingleton(Config::ClassName(), function (ServiceProvider $options) {
         return new Config(json_decode(file_get_contents(dirname(__FILE__) . '/config.json'), true));
+    });
+
+    // 日志
+    $service->AddSingleton(Logger::ClassName(), function (ServiceProvider $options) {
+        return new Logger(LogLevel::Information, hzfw::$path . '/frontend/logs', 7);
     });
 
     // Mvc
@@ -155,8 +173,11 @@ hzfw::Services(function (ServiceCollection $service)
 hzfw::Run(function (ServiceProvider $app)
 {
     // Mvc
-    Mvc::Use($app);
+    Mvc::Use($app, function (MiddlewareManager $middlewareManager) {
+        $middlewareManager->Add(new \frontend\middlewares\TestMiddleware());
+    });
 });
+
 ```
 
 ## MVC命名规则
@@ -186,12 +207,22 @@ frontend/controllers/SiteController.php
 <?php
 
 namespace frontend\controllers;
+use frontend\models\ErrorModel;
+use hzfw\web\ActionResult;
 use hzfw\web\Controller;
+use hzfw\base\Logger;
 
 class SiteController extends Controller
 {
+    private Logger $logger;
+
+    public function __construct(Logger $logger)
+    {
+        $this->logger = $logger;
+    }
+
     //异常
-    public function Error(int $statusCode, ?\Throwable $exception = null)
+    public function Error(int $statusCode, ?\Throwable $exception = null): ActionResult
     {
         $model = new ErrorModel();
         {
@@ -199,16 +230,25 @@ class SiteController extends Controller
             $model->message = null === $exception ? '' : $exception->getMessage();
             $model->e = $exception;
         }
+
+        if ($model->statusCode >= 400 && $model->statusCode <= 499)
+        {
+            $this->logger->LogInformation('ErrorView', $model->message, $model->e);
+        }
+        else
+        {
+            $this->logger->LogError('ErrorView', $model->message, $model->e);
+        }
+
         return $this->View('', $model);
     }
 
-    //首页
-    public function Index()
+    public function Index(): ActionResult
     {
-        //根据上面配置，首页
         return $this->View();
     }
 }
+
 ```
 
 ## 小部件
@@ -266,7 +306,7 @@ class UserModel extends Model
 
 读取数据  
 ```
-//使用 hzfw::GetService() 或 __construct 获取 db实例
+//使用 $this->httpContext->requestServices->GetService() 或 __construct 获取 db实例
 $model = UserModel::Parse($db->QueryOne("SELECT `id`, `name`, `password` FROM `user` WHERE `name` = :name", [
     ":name" => "xxxx"
 ]));

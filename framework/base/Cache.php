@@ -3,6 +3,11 @@
 namespace hzfw\base;
 use hzfw\core\BaseObject;
 
+/**
+ * 缓存
+ * Class Cache
+ * @package hzfw\base
+ */
 class Cache extends BaseObject
 {
     /**

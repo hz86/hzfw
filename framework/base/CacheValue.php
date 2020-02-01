@@ -4,7 +4,7 @@ namespace hzfw\base;
 use hzfw\core\BaseObject;
 
 /**
- * 文件缓存值
+ * 缓存值
  * Class CacheValue
  */
 class CacheValue extends BaseObject
