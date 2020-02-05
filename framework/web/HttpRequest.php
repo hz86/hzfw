@@ -514,6 +514,7 @@ class HttpRequest extends BaseObject
     public function GetRange(): ?array
     {
         $result = null;
+        $matches = $rangeMatches = null;
 
         $range = $this->GetHeader('Range', '');
         if (preg_match('/^bytes=(.+)$/i', $range, $matches) > 0)

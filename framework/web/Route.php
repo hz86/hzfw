@@ -126,6 +126,7 @@ class Route extends BaseObject
         }
         
         //匹配路由
+        $matches = null;
         foreach ($this->rules as $name => $value)
         {
             if (preg_match('#' . $value['RegexTemplate'] . '#', $url, $matches) > 0)
