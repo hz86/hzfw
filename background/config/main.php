@@ -70,3 +70,5 @@ hzfw::Run(function (ServiceProvider $app)
     $scope->Dispose();
     echo "\r\n";
 });
+
+exit(hzfw::$exitCode);

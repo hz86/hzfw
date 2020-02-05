@@ -22,6 +22,12 @@ class hzfw
     public static string $path = '';
 
     /**
+     * 退出代码
+     * @var integer
+     */
+    public static int $exitCode = 0;
+
+    /**
      * 获取别名
      * @param string $name
      * @return string|null
@@ -228,6 +234,15 @@ class hzfw
             self::$services->Dispose();
             self::$services = null;
         }
+    }
+    
+    /**
+     * 设置退出代码
+     * @param int $code
+     */
+    public static function SetExitCode(int $code): void
+    {
+        self::$exitCode = $code;
     }
 }
 
