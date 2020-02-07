@@ -54,8 +54,14 @@ class ServiceScope extends BaseObject
             }
         }
 
-        foreach ($this->collection->services as $service) {
-            if (isset($service->instances[$hash])) unset($service->instances[$hash]);
+        foreach ($this->collection->services as $service)
+        {
+            foreach ($service as $item)
+            {
+                if (isset($item->instances[$hash])) {
+                    unset($item->instances[$hash]);
+                }
+            }
         }
 
         unset($this->collection->scopeInstances[$hash]);
