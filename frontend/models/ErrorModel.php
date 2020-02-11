@@ -1,7 +1,7 @@
 <?php
 
 namespace frontend\models;
-use hzfw\web\Model;
+use hzfw\core\Model;
 
 class ErrorModel extends Model
 {

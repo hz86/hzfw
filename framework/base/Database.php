@@ -136,7 +136,7 @@ class Database extends BaseObject
             $statement = $this->conn->prepare($sql);
             
             foreach ($param as $name => &$value) {
-                $statement->bindParam($name, $value);
+                $statement->bindParam(':'.$name, $value);
             }
             
             $statement->execute();
@@ -164,7 +164,7 @@ class Database extends BaseObject
             $statement = $this->conn->prepare($sql);
             
             foreach ($param as $name => &$value) {
-                $statement->bindParam($name, $value);
+                $statement->bindParam(':'.$name, $value);
             }
             
             $statement->execute();
@@ -188,7 +188,7 @@ class Database extends BaseObject
             $statement = $this->conn->prepare($sql);
             
             foreach ($param as $name => &$value) {
-                $statement->bindParam($name, $value);
+                $statement->bindParam(':'.$name, $value);
             }
             
             $statement->execute();

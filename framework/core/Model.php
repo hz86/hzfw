@@ -1,7 +1,6 @@
 <?php
 
-namespace hzfw\web;
-use hzfw\core\BaseObject;
+namespace hzfw\core;
 
 /**
  * Class Model
