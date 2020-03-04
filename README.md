@@ -297,9 +297,9 @@ use hzfw\web\Model;
 
 class UserModel extends Model
 {
-    public $id;
-    public $name;
-    public $password;
+    public int $id;
+    public string $name;
+    public string $password;
 }
 
 ```
@@ -308,7 +308,7 @@ class UserModel extends Model
 ```
 //使用 $this->httpContext->requestServices->GetService() 或 __construct 获取 db实例
 $model = UserModel::Parse($db->QueryOne("SELECT `id`, `name`, `password` FROM `user` WHERE `name` = :name", [
-    ":name" => "xxxx"
+    "name" => "xxxx"
 ]));
 
 ```

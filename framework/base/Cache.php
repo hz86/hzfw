@@ -22,7 +22,7 @@ class Cache extends BaseObject
         $result->value = null;
         return $result;
     }
-
+    
     /**
      * 写缓存
      * @param string $key
@@ -34,13 +34,13 @@ class Cache extends BaseObject
     {
         return false;
     }
-
+    
     /**
      * 删除缓存
      * @param string $key
      */
     public function Remove(string $key): void
     {
-
+        
     }
 }

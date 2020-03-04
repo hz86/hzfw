@@ -36,6 +36,7 @@ class Logger extends BaseObject
         $this->level = $level;
         $this->logPath = $logPath;
         $this->expireLogs = $expireLogs;
+        mkdir($this->logPath, 0775, true);
     }
 
     /**
