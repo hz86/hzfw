@@ -21,6 +21,12 @@ class View extends BaseObject
      */
     public string $fileName = '';
     
+    /**
+     * 布局名称
+     * @var string
+     */
+    public string $Layout = 'Main';
+    
 	/**
 	 * 标题
 	 * @var string
@@ -101,7 +107,7 @@ class View extends BaseObject
 	    ob_implicit_flush(0);
 	    
 	    extract(["content" => $this->ViewPartial($viewName, $model)], EXTR_OVERWRITE);
-	    require(hzfw::$path . "/{$this->config->Mvc->ViewPath}/Layouts/Main.php");
+	    require(hzfw::$path . "/{$this->config->Mvc->ViewPath}/Layouts/{$this->Layout}.php");
 	    
 	    $out = ob_get_clean();
 	    $out = false !== $out ? $out : '';

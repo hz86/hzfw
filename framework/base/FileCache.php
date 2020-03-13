@@ -95,7 +95,7 @@ class FileCache extends Cache
         $result = false;
 
         $dirPath = substr($path, 0, strrpos($path, '/'));
-        mkdir($dirPath, 0775, true);
+        @mkdir($dirPath, 0775, true);
 
         $fp = @fopen($path, 'r+');
         if (false === $fp) $fp = @fopen($path, 'wx');

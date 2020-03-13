@@ -8,16 +8,23 @@ namespace hzfw\core;
  */
 class Model extends BaseObject
 {
-    public static function Parse (array $data): self
+    public static function Parse (?array $data): ?self
     {
-        $obj = new self();
-        
-        foreach ($data as $key => $val)
+        if(null === $data)
         {
-            $obj->__set($key, $val);
+            return null;
         }
-        
-        return $obj;
+        else
+        {
+            $obj = new static();
+            
+            foreach ($data as $key => $val)
+            {
+                $obj->__set($key, $val);
+            }
+            
+            return $obj;
+        }
     }
     
     public function AsArray (): array
