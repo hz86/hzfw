@@ -7,6 +7,7 @@ class Database extends BaseObject
 {
     private \PDO $conn;
     private int $transactionRef = 0;
+    private bool $persistent = false;
     private ?string $username = null;
     private ?string $passwd = null;
     private string $dsn = '';
@@ -16,14 +17,17 @@ class Database extends BaseObject
      * @param string $dsn
      * @param string $username
      * @param string $passwd
+     * @param bool $persistent
      */
-    public function __construct(string $dsn, ?string $username = null, ?string $passwd = null)
+    public function __construct(string $dsn, ?string $username = null, ?string $passwd = null, bool $persistent = false)
     {
         $this->dsn = $dsn;
         $this->username = $username;
         $this->passwd = $passwd;
+        $this->persistent = $persistent;
         
         $this->conn = new \PDO($dsn, $username, $passwd, [
+            \PDO::ATTR_PERSISTENT => $this->persistent,
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_NATURAL,
@@ -41,6 +45,7 @@ class Database extends BaseObject
         unset($this->conn);
         $this->transactionRef = 0;
         $this->conn = new \PDO($this->dsn, $this->username, $this->passwd, [
+            \PDO::ATTR_PERSISTENT => $this->persistent,
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             \PDO::ATTR_ORACLE_NULLS => \PDO::NULL_NATURAL,

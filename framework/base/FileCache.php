@@ -69,6 +69,7 @@ class FileCache extends Cache
                     $data = fread($fp, $size);
 
                     flock($fp, LOCK_UN);
+                    $data = gzuncompress($data);
                     $result->value = unserialize($data);
                     $result->hasValue = true;
                 }
@@ -83,7 +84,7 @@ class FileCache extends Cache
     /**
      * 写缓存
      * @param string $key
-     * @param int $expiry
+     * @param int $expiry ms
      * @param mixed $value
      * @return bool
      */
@@ -91,8 +92,10 @@ class FileCache extends Cache
     {
         $now = time();
         $path = $this->GetPath($key);
-        $data = serialize($value);
         $result = false;
+
+        $data = serialize($value);
+        $data = gzcompress($data, 1);
 
         $dirPath = substr($path, 0, strrpos($path, '/'));
         @mkdir($dirPath, 0775, true);
@@ -108,7 +111,7 @@ class FileCache extends Cache
                 ftruncate($fp, 0);
 
                 fwrite($fp, $data);
-                @touch($path, $now + $expiry);
+                @touch($path, $now + (int)($expiry / 1000));
 
                 flock($fp, LOCK_UN);
             }

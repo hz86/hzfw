@@ -201,7 +201,7 @@ class MvcMiddleware extends Middleware
         {
             //获取参数名称和类型
             $parameterName = $reflectionParameter->getName();
-            $parameterType = (string)$reflectionParameter->getType();
+            $parameterType = $reflectionParameter->getType()->getName();
 
             //获取参数值
             $value = isset($pars[$parameterName]) ? $pars[$parameterName] : null;

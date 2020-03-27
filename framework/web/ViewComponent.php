@@ -3,6 +3,16 @@
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
+/**
+ * class TestViewComponent extends ViewComponent
+ * {
+ *     public function Run($params): string
+ *     {
+ *         return '';
+ *     }
+ * }
+ */
+
 class ViewComponent extends BaseObject
 {
     /**
@@ -22,14 +32,6 @@ class ViewComponent extends BaseObject
      * @var Route
      */
     public Route $route;
-
-    /**
-     * 运行
-     */
-    public function Run($model): string
-    {
-        return '';
-    }
 
     /**
      * 视图

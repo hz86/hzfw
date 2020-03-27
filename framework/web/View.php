@@ -107,7 +107,7 @@ class View extends BaseObject
 	    ob_implicit_flush(0);
 	    
 	    extract(["content" => $this->ViewPartial($viewName, $model)], EXTR_OVERWRITE);
-	    require(hzfw::$path . "/{$this->config->Mvc->ViewPath}/Layouts/{$this->Layout}.php");
+	    include(hzfw::$path . "/{$this->config->Mvc->ViewPath}/Layouts/{$this->Layout}.php");
 	    
 	    $out = ob_get_clean();
 	    $out = false !== $out ? $out : '';
@@ -135,7 +135,7 @@ class View extends BaseObject
 	    ob_implicit_flush(0);
 	    
 	    extract(["model" => $model], EXTR_OVERWRITE);
-	    require(hzfw::$path . "/{$this->config->Mvc->ViewPath}{$viewName}.php");
+	    include(hzfw::$path . "/{$this->config->Mvc->ViewPath}{$viewName}.php");
 	    
 	    $out = ob_get_clean();
 	    $out = false !== $out ? $out : '';
