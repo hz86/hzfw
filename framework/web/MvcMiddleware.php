@@ -189,6 +189,12 @@ class MvcMiddleware extends Middleware
         $routes = $this->route->GetRouteAll();
         $querys = $this->httpContext->request->GetQueryAll();
 
+        if (false === $reflection->hasMethod($method))
+        {
+            //方法不存在
+            throw new UnknownMethodException("class '{$class}' method '{$method}' not exist");
+        }
+
         $reflectionMethod = $reflection->getMethod($method);
         if (!$reflectionMethod->isPublic())
         {

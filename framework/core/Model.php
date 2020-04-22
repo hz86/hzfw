@@ -63,4 +63,16 @@ class Model extends BaseObject
     {
         unset($this->$name);
     }
+    
+    public function __call(string $name, $arguments)
+    {
+        if (is_callable($this->$name)) return call_user_func_array($this->$name, $arguments);
+        throw new UnknownMethodException("call unknown method '" . get_class($this) . "::{$name}()'");
+    }
+    
+    public static function __callStatic(string $name, $arguments)
+    {
+        if (is_callable(self::$name)) return call_user_func_array(self::$name, $arguments);
+        throw new UnknownMethodException("call unknown static method '" . get_class(self) . "::{$name}()'");
+    }
 }

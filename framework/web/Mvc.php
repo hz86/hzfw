@@ -61,8 +61,8 @@ class Mvc extends BaseObject
     /**
      * 使用服务
      * @param ServiceProvider $app
-     * @param \Closure|null $func 可以添加中间件
-     * $func = function(MiddlewareManager $middlewareManager) {}
+     * @param \Closure|null $func 可以添加中间件或执行其他操作
+     * $func = function(ServiceProvider $service) {}
      */
     public static function Use(ServiceProvider $app, ?\Closure $func = null): void
     {
@@ -75,7 +75,7 @@ class Mvc extends BaseObject
             $middlewareManager->Add(new MvcMiddleware());
             if (null !== $func)
             {
-                $func($middlewareManager);
+                $func($scope->serviceProvider);
             }
             $mvc->Run();
         }
