@@ -27,9 +27,12 @@ class Encoding extends BaseObject
      * @param string $content
      * @return string
      */
-    public static function HtmlDecode(string $content): string
+    public static function HtmlDecode(string $content, string $encoding = null): string
     {
-        return htmlspecialchars_decode($content, ENT_QUOTES);
+        $content = htmlspecialchars_decode($content, ENT_QUOTES);
+        return preg_replace_callback('/(&#[0-9a-fA-F]+;|&[a-zA-Z]+;)/', function(array $matches) use($encoding): string  {
+            return self::StringEncoding($matches[0], $encoding, 'HTML-ENTITIES');
+        }, $content);
     }
     
     /**

@@ -58,7 +58,7 @@ class Csrf extends BaseObject
     {
         if(null === $this->csrfValue)
         {
-            $this->csrfValue = sha1(uniqid('', true));
+            $this->csrfValue = sha1(uniqid(mt_rand(), true));
             $this->httpContext->response->AddCookie($this->cookieName, $this->csrfValue, [
                 'path' => '/',
                 'httponly' => true,
@@ -67,8 +67,8 @@ class Csrf extends BaseObject
             ]);
         }
         
-        $randValue = substr(sha1(uniqid('', true)), 0, 16);
-        return $randValue. sha1($randValue . $this->csrfValue);
+        $randValue = substr(sha1(uniqid(mt_rand(), true)), 0, 16);
+        return $randValue . sha1($randValue . $this->csrfValue);
     }
     
     /**

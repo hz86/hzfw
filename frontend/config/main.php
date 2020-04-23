@@ -27,7 +27,13 @@ hzfw::Services(function (ServiceCollection $service)
 hzfw::Run(function (ServiceProvider $app)
 {
     // Mvc
-    Mvc::Use($app, function (MiddlewareManager $middlewareManager) {
-        $middlewareManager->Add(new \frontend\middlewares\TestMiddleware());
+    Mvc::Use($app, function (ServiceProvider $service) 
+    {
+        // 中间件
+        $middlewareManager = $service->GetService(MiddlewareManager::ClassName());
+        $middlewareManager instanceof MiddlewareManager;
+        {
+            $middlewareManager->Add(new \frontend\middlewares\TestMiddleware());
+        }
     });
 });

@@ -343,7 +343,7 @@ class HttpRequest extends BaseObject
     {
         if (null === $this->raw) {
             if('POST' === $this->GetMethod() && 
-                0 !== strncmp($this->GetContentType(), 'multipart/form-data;', 20)) {
+                0 !== preg_match('#^multipart/form-data(;|$)#', $this->GetContentType())) {
                 $this->raw = file_get_contents('php://input');
             }
         }
@@ -359,7 +359,7 @@ class HttpRequest extends BaseObject
     {
         if (null === $this->json) {
             if('POST' === $this->GetMethod() &&
-                0 === strncmp($this->GetContentType(), 'application/json;', 17)) {
+                0 !== preg_match('#^application/json(;|$)#', $this->GetContentType())) {
                 $this->json = json_decode(file_get_contents('php://input'), true);
             }
         }

@@ -80,6 +80,13 @@ class Cros extends BaseObject
             }
         }
         
+        // 默认跨域设置
+        if ('' !== $allowOrigin)
+        {
+            $response->AddHeader('Access-Control-Allow-Origin', $allowOrigin);
+            if (true === $config->Credentials) $response->AddHeader('Access-Control-Allow-Credentials', 'true');
+        }
+        
         // 预检
         if ($request->GetMethod() === 'OPTIONS')
         {
@@ -88,20 +95,11 @@ class Cros extends BaseObject
             $accessControlRequestHeaders = $request->GetHeader('Access-Control-Request-Headers', null);
             if (null === $accessControlRequestMethod && null === $accessControlRequestHeaders)
             {
-                if ('' !== $allowOrigin)
-                {
-                    // 允许跨域
-                    $response->AddHeader('Access-Control-Allow-Origin', $allowOrigin);
-                }
-                
                 return null;
             }
             
             if ('' !== $allowOrigin)
             {
-                // 允许跨域
-                $response->AddHeader('Access-Control-Allow-Origin', $allowOrigin);
-                
                 // 检查方法
                 if (null !== $accessControlRequestMethod)
                 {
@@ -182,13 +180,6 @@ class Cros extends BaseObject
             // 拦截后续执行
             $response->AddHeader('Access-Control-Max-Age', '86400');
             return new StatusCodeResult(204);
-        }
-        
-        // 默认跨域设置
-        if ('' !== $allowOrigin)
-        {
-            $response->AddHeader('Access-Control-Allow-Origin', $allowOrigin);
-            if (true === $config->Credentials) $response->AddHeader('Access-Control-Allow-Credentials', 'true');
         }
         
         return null;
