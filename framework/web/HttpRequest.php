@@ -77,10 +77,10 @@ class HttpRequest extends BaseObject
         
         foreach ($_FILES as $name => $value)
         {
-            if (is_array($value))
+            if (is_array($value["error"]))
             {
-                $len = count($value);
                 $this->file[$name] = [];
+                $len = count($value["error"]);
                 for($i = 0; $i < $len; $i++)
                 {
                     $this->file[$name][] = new Upload([
@@ -342,8 +342,8 @@ class HttpRequest extends BaseObject
     public function GetRawBody(): ?string
     {
         if (null === $this->raw) {
-            if('POST' === $this->GetMethod() && 
-                0 !== preg_match('#^multipart/form-data(;|$)#', $this->GetContentType())) {
+            if('POST' === $this->GetMethod() &&
+                0 === preg_match('#^multipart/form-data(;|$)#', $this->GetContentType())) {
                 $this->raw = file_get_contents('php://input');
             }
         }
@@ -373,10 +373,7 @@ class HttpRequest extends BaseObject
      */
     public function GetContentType(): ?string
     {
-        if (isset($_SERVER['CONTENT_TYPE'])) {
-            return $_SERVER['CONTENT_TYPE'];
-        }
-        
+        if (isset($_SERVER['CONTENT_TYPE'])) return $_SERVER['CONTENT_TYPE'];
         return $this->GetHeader('Content-Type');
     }
     
