@@ -342,7 +342,7 @@ class HttpRequest extends BaseObject
     public function GetRawBody(): ?string
     {
         if (null === $this->raw) {
-            if('POST' === $this->GetMethod() &&
+            if('POST' === $this->GetMethod() && 
                 0 === preg_match('#^multipart/form-data(;|$)#', $this->GetContentType())) {
                 $this->raw = file_get_contents('php://input');
             }

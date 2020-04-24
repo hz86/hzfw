@@ -170,7 +170,7 @@ class Mvc extends BaseObject
         //输出类型
         $contentTypeHeader = '';
         $contentType = $response->GetContentType();
-        if (preg_match('/^text\/.*/i', $contentType) || preg_match('/^application\/(javascript|json)$/i'))
+        if (0 !== preg_match('/^text\/.+/i', $contentType) || 0 !== preg_match('/^application\/(javascript|json)$/i', $contentType))
         {
             //文本类型
             $contentCharset = $response->GetContentCharset();
@@ -295,7 +295,7 @@ class Mvc extends BaseObject
         //输出类型
         $contentTypeHeader = '';
         $contentType = $response->GetContentType();
-        if (preg_match('/^text\/.*/i', $contentType) || preg_match('/^application\/(javascript|json)$/i'))
+        if (0 !== preg_match('/^text\/.+/i', $contentType) || 0 !== preg_match('/^application\/(javascript|json)$/i', $contentType))
         {
             //文本类型
             $contentCharset = $response->GetContentCharset();
@@ -446,7 +446,7 @@ class Mvc extends BaseObject
             //输出类型
             $contentTypeHeader = '';
             $contentType = $response->GetContentType();
-            if (preg_match('/^text\/.*/i', $contentType) || preg_match('/^application\/(javascript|json)$/i'))
+            if (0 !== preg_match('/^text\/.+/i', $contentType) || 0 !== preg_match('/^application\/(javascript|json)$/i', $contentType))
             {
                 //文本类型
                 $contentCharset = $response->GetContentCharset();
