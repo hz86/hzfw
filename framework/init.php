@@ -246,6 +246,19 @@ class hzfw
     }
 }
 
+//捕获异常
+set_exception_handler(function (Throwable $t)
+{
+    throw $t;
+});
+
+//捕获错误
+set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool
+{
+    if (!(error_reporting() & $errno)) return false;
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+
 //类自动加载
 hzfw::$path = dirname(dirname(__FILE__));
 hzfw::SetClassAlias('hzfw', 'framework');

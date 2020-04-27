@@ -70,6 +70,12 @@ class Mvc extends BaseObject
 
         try
         {
+            set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool
+            {
+                if (!(error_reporting() & $errno)) return false;
+                throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+            });
+
             $mvc = $scope->serviceProvider->GetService(Mvc::ClassName());
             $middlewareManager = $scope->serviceProvider->GetService(MiddlewareManager::ClassName());
             $middlewareManager->Add(new MvcMiddleware());
@@ -77,14 +83,20 @@ class Mvc extends BaseObject
             {
                 $func($scope->serviceProvider);
             }
+
             $mvc->Run();
         }
         catch (\Throwable $t)
         {
             header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true);
             echo 'error occurred';
+            if (HZFW_DEBUG)
+            {
+                var_dump($t);
+            }
         }
-        finally {
+        finally
+        {
             $scope->Dispose();
         }
     }

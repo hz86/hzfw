@@ -50,6 +50,13 @@ class MvcMiddleware extends Middleware
 
         try
         {
+            //捕获错误
+            set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool
+            {
+                if (!(error_reporting() & $errno)) return false;
+                throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+            });
+
             //路由匹配失败，抛出404
             if ('' === $route->GetControllerName() || '' === $route->GetActionName()) {
                 throw new HttpException(404, 'route matching failed');
