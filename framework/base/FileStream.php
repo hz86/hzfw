@@ -30,7 +30,7 @@ class FileStream extends BaseObject
     /**
      * 关闭文件
      */
-    public function Dispose()
+    public function Dispose(): void
     {
         fclose($this->fp);
     }

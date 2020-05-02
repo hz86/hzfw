@@ -17,7 +17,7 @@ class Encoding extends BaseObject
      * @param bool $doubleEncode
      * @return string
      */
-    public static function HtmlEncode(string $content, string $encoding = null, bool $doubleEncode = true): string
+    public static function HtmlEncode(string $content, ?string $encoding = null, bool $doubleEncode = true): string
     {
         return htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE, $encoding, $doubleEncode);
     }
@@ -27,9 +27,10 @@ class Encoding extends BaseObject
      * @param string $content
      * @return string
      */
-    public static function HtmlDecode(string $content, string $encoding = null): string
+    public static function HtmlDecode(string $content, ?string $encoding = null): string
     {
         $content = htmlspecialchars_decode($content, ENT_QUOTES);
+        if (null === $encoding) $encoding =  mb_internal_encoding() ;
         return preg_replace_callback('/(&#[0-9a-fA-F]+;|&[a-zA-Z]+;)/', function(array $matches) use($encoding): string  {
             return self::StringEncoding($matches[0], $encoding, 'HTML-ENTITIES');
         }, $content);

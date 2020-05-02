@@ -98,7 +98,7 @@ class Upload extends BaseObject
      * @return FileStream|null
      * @throws \Exception
      */
-    public function GetStream(string $mode): ?FileStream
+    public function GetStream(string $mode = "rb"): ?FileStream
     {
         $result = null;
         if(UPLOAD_ERR_OK === $this->error)
@@ -108,5 +108,13 @@ class Upload extends BaseObject
             }
         }
         return $result;
+    }
+
+    /**
+     * 释放
+     */
+    public function Dispose(): void
+    {
+        $this->DeleteTempFile();
     }
 }

@@ -234,7 +234,7 @@ class Database extends BaseObject
     /**
      * 释放
      */
-    public function Dispose()
+    public function Dispose(): void
     {
         unset($this->conn);
     }

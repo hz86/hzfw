@@ -112,7 +112,7 @@ class RedisCache extends Cache
     /**
      * 释放
      */
-    public function Dispose()
+    public function Dispose(): void
     {
         $this->redis->close();
     }

@@ -531,4 +531,28 @@ class HttpRequest extends BaseObject
 
         return $result;
     }
+
+    /**
+     * 释放
+     */
+    public function Dispose(): void
+    {
+        foreach ($this->file as $value)
+        {
+            if (is_array($value))
+            {
+                $len = count($value);
+                for($i = 0; $i < $len; $i++)
+                {
+                    $value[$i]->Dispose();
+                }
+            }
+            else
+            {
+                $value->Dispose();
+            }
+        }
+
+        $this->file = [];
+    }
 }

@@ -17,4 +17,12 @@ class BaseObject
     {
         return get_called_class();
     }
+    
+    /**
+     * 释放
+     */
+    public function Dispose(): void
+    {
+        
+    }
 }
