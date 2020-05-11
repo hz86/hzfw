@@ -88,6 +88,12 @@ class Mvc extends BaseObject
         }
         catch (\Throwable $t)
         {
+            for ($level = ob_get_level(); $level > 0; $level--) {
+                if (false === @ob_end_clean()) {
+                    ob_clean();
+                }
+            }
+            
             header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true);
             echo 'error occurred';
             if (HZFW_DEBUG)

@@ -178,6 +178,15 @@ class Route extends BaseObject
     }
     
     /**
+     * 获取路由名称
+     * @return string
+     */
+    public function GetRouteName(): string
+    {
+        return $this->routeName;
+    }
+    
+    /**
      * 获取路由参数
      * @param string $name
      * @param string $defaultValue
