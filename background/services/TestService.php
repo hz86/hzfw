@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace background\services;
 use hzfw\core\BaseObject;
 
@@ -10,7 +11,7 @@ class TestService extends BaseObject
         echo "TestService\r\n";
     }
 
-    public function Dispose()
+    public function Dispose(): void
     {
         echo "Dispose TestService\r\n";
     }

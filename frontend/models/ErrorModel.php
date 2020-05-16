@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace frontend\models;
 use hzfw\core\Model;
 

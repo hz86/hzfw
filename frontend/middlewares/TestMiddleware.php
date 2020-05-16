@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace frontend\middlewares;
 use hzfw\web\HttpContext;
 use hzfw\web\Middleware;

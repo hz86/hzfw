@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 use hzfw\web\Mvc;
 use hzfw\web\Config;
 use hzfw\core\ServiceCollection;

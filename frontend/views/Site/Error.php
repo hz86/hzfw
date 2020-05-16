@@ -5,6 +5,6 @@
 //var_dump($model->e);
 ?>
 <div>
-    <h1><?= \hzfw\base\Encoding::HtmlEncode($model->statusCode) ?></h1>
+    <h1><?= \hzfw\base\Encoding::HtmlEncode((string)$model->statusCode) ?></h1>
     <div><?= \hzfw\base\Encoding::HtmlEncode($model->message) ?></div>
 </div>
