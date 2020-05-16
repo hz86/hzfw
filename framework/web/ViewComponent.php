@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
 /**
+ * 视图组件
+ * Class ViewComponent
+ * @package hzfw\web
+ * 
  * class TestViewComponent extends ViewComponent
  * {
  *     public function Run($params): string
@@ -11,8 +16,8 @@ use hzfw\core\BaseObject;
  *         return '';
  *     }
  * }
+ * 
  */
-
 class ViewComponent extends BaseObject
 {
     /**

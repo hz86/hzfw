@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\UnknownClassException;
 use hzfw\core\UnknownMethodException;
@@ -235,15 +236,6 @@ class MvcMiddleware extends Middleware
                     //通用型
                     $actionParams[$parameterName] = $value;
                 }
-                else if ('Throwable' === $parameterType)
-                {
-                    if (!($value instanceof \Throwable))
-                    {
-                        //不是异常类型
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no Throwable");
-                    }
-                    $actionParams[$parameterName] = $value;
-                }
                 else if('string' === $parameterType)
                 {
                     if (!is_string($value))
@@ -264,16 +256,16 @@ class MvcMiddleware extends Middleware
                 }
                 else if ('int' === $parameterType)
                 {
-                    if (!is_int($value) && !(is_string($value) && 0 !== preg_match('/^[+-]?([0-9]+)$/', $value)))
+                    if (!(is_int($value) || (is_string($value) && 0 !== preg_match('/^[+-]?[0-9]+$/', $value))))
                     {
                         //不是整数
                         throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no int");
-                    }
+                    }     
                     $actionParams[$parameterName] = (int)$value;
                 }
                 else if ('float' === $parameterType)
                 {
-                    if (!is_float($value) && !(is_string($value) && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)$/', $value)))
+                    if (!(is_float($value) || (is_string($value) && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $value))))
                     {
                         //不是小数
                         throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no float");
@@ -282,12 +274,22 @@ class MvcMiddleware extends Middleware
                 }
                 else if ('bool' === $parameterType)
                 {
-                    if (!is_bool($value) && !(is_string($value) && 0 !== preg_match('/^(true|false|[01])$/', $value)))
+                    if (!(is_bool($value) || (is_string($value) && 0 !== preg_match('/^(true|false|[01])$/', $value))))
                     {
                         //不是布尔型
                         throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no bool");
                     }
                     $actionParams[$parameterName] = 'false' === $value ? false : ('true' === $value ? true : ('1' === $value ? true : false));
+                }
+                else if (is_object($value))
+                {
+                    $parameterClass = $reflectionParameter->getClass()->getName();
+                    if (!($value instanceof $parameterClass))
+                    {
+                        //类型错误
+                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no {$parameterType}");
+                    }
+                    $actionParams[$parameterName] = $value;
                 }
             }
             else

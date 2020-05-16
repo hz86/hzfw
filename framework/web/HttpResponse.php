@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 use hzfw\base\FileStream;
@@ -169,7 +170,7 @@ class HttpResponse extends BaseObject
     /**
      * 设置状态码
      * @param int $statusCode
-     * @param string $statusText
+     * @param string|null $statusText
      */
     public function SetStatusCode(int $statusCode, ?string $statusText = null): void
     {
@@ -215,6 +216,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 获取内容类型
+     * @return string
      */
     public function GetContentType(): string
     {
@@ -232,6 +234,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 获取内容编码
+     * @return string
      */
     public function GetContentCharset(): string
     {
@@ -249,6 +252,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 获取内容
+     * @return string
      */
     public function GetContent(): string
     {
@@ -266,6 +270,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 获取内容流
+     * @return FileStream|null
      */
     public function GetContentStream(): ?FileStream
     {
@@ -274,7 +279,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 设置内容流
-     * @param FileStream $contentStream
+     * @param FileStream|null $contentStream
      */
     public function SetContentStream(?FileStream $contentStream): void
     {
@@ -283,7 +288,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 获取内容范围
-     * @return array [[begin,end],...]
+     * @return array|null [[begin,end],...]
      */
     public function GetContentRange(): ?array
     {
@@ -292,7 +297,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 设置内容范围
-     * @param array $contentRange [[begin,end],...]
+     * @param array|null $contentRange [[begin,end],...]
      */
     public function SetContentRange(?array $contentRange): void
     {
@@ -347,7 +352,7 @@ class HttpResponse extends BaseObject
     /**
      * 移除响应头
      * @param string $name
-     * @param int $i 如果是数组则输入对应索引
+     * @param int|null $i 如果是数组则输入对应索引
      */
     public function RemoveHeader(string $name, ?int $i = null): void
     {
@@ -384,8 +389,8 @@ class HttpResponse extends BaseObject
     /**
      * 添加COOKIE
      * @param string $name
-     * @param string $value
-     * @param array $opt
+     * @param string|null $value
+     * @param array|null $opt
      * [
      *   "expires" => 0,
      *   "path" => "/",
@@ -414,8 +419,8 @@ class HttpResponse extends BaseObject
     /**
      * 移除COOKIE
      * @param string $name
-     * @param string $path
-     * @param string $domain
+     * @param string|null $path
+     * @param string|null $domain
      */
     public function RemoveCookie(string $name, ?string $path = null, ?string $domain = null): void
     {
@@ -433,6 +438,7 @@ class HttpResponse extends BaseObject
     
     /**
      * 获取Cookie
+     * @return array
      */
     public function GetCookieAll(): array
     {

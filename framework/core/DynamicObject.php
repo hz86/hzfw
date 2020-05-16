@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\core;
 
 /**
@@ -19,11 +20,18 @@ class DynamicObject extends BaseObject
         {
             if (is_array($val))
             {
-                $this->__set($key, new DynamicObject($val));
+                if (self::is_map($val))
+                {
+                    $this->__set((string)$key, new static($val));
+                }
+                else
+                {
+                    $this->__set((string)$key, self::parse($val));
+                }
             }
             else
             {
-                $this->__set($key, $val);
+                $this->__set((string)$key, $val);
             }
         }
     }
@@ -57,7 +65,51 @@ class DynamicObject extends BaseObject
     
     public static function __callStatic(string $name, $arguments)
     {
-        if (is_callable(self::$name)) return call_user_func_array(self::$name, $arguments);
-        throw new UnknownMethodException("call unknown static method '" . get_class(self) . "::{$name}()'");
+        if (is_callable(static::$$name)) return call_user_func_array(static::$$name, $arguments);
+        throw new UnknownMethodException("call unknown static method '" . static::class . "::{$name}()'");
+    }
+    
+    private static function is_map(array $arr): bool
+    {
+        $i = 0;
+        
+        foreach ($arr as $key => $val)
+        {
+            if (is_string($key) || $i !== $key)
+            {
+                return true;
+            }
+            
+            unset($val);
+            $i++;
+        }
+        
+        return false;
+    }
+    
+    private static function parse(array $vals): array
+    {
+        $arr = [];
+        
+        foreach ($vals as $val)
+        {
+            if (is_array($val))
+            {
+                if (self::is_map($val))
+                {
+                    $arr[] = new static($val);
+                }
+                else
+                {
+                    $arr[] = self::parse($val);
+                }
+            }
+            else
+            {
+                $arr[] = $val;
+            }
+        }
+        
+        return $arr;
     }
 }

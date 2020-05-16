@@ -1,14 +1,21 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\core;
 
 /**
+ * 模型
  * Class Model
  * @package hzfw\web
  */
 class Model extends BaseObject
 {
-    public static function Parse (?array $data): ?self
+    /**
+     * 数组转模型
+     * @param array $data
+     * @return self|null
+     */
+    public static function Parse (?array $data = null): ?self
     {
         if(null === $data)
         {
@@ -30,13 +37,17 @@ class Model extends BaseObject
         }
     }
     
+    /**
+     * 模型转数组
+     * @return array
+     */
     public function AsArray (): array
     {
         $arr = [];
         
-        foreach ($this as $n => $v)
+        foreach ($this as $key => $val)
         {
-            $arr[$n] = $v;
+            $arr[$key] = $val;
         }
         
         return $arr;
@@ -72,7 +83,7 @@ class Model extends BaseObject
     
     public static function __callStatic(string $name, $arguments)
     {
-        if (is_callable(self::$name)) return call_user_func_array(self::$name, $arguments);
-        throw new UnknownMethodException("call unknown static method '" . get_class(self) . "::{$name}()'");
+        if (is_callable(static::$$name)) return call_user_func_array(static::$$name, $arguments);
+        throw new UnknownMethodException("call unknown static method '" . static::class . "::{$name}()'");
     }
 }

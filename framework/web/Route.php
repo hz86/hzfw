@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
@@ -234,7 +235,11 @@ class Route extends BaseObject
             if (null !== $value) unset($params[$name]);
             if (null === $value) $value = isset($defaults[$name]) ? $defaults[$name] : null;
             if (null === $value) throw new HttpException(500, "route name '{$routeName}' parameter '{$name}' is invalid"); 
-            if (0 === preg_match('#^'.$check.'$#', $value)) throw new HttpException(500, "route name '{$routeName}' parameter '{$name}' is invalid"); 
+            $value = (string)$value;
+            
+            if (0 === preg_match('#^'.$check.'$#', $value)) {
+                throw new HttpException(500, "route name '{$routeName}' parameter '{$name}' is invalid"); 
+            }
             
             if ('Controller' === $name || 'Action' === $name) {
                 $value = $this->ToLower($value);
@@ -249,7 +254,7 @@ class Route extends BaseObject
         
         $query = '';
         foreach ($params as $name => $value) {
-            if ('#' !== $name) $query .= '&' . urlencode($name) . '=' . urlencode($value);
+            if ('#' !== $name) $query .= '&' . urlencode($name) . '=' . urlencode((string)$value);
         }
         if ('' !== $query && false === strpos($url, '?')) {
             $query[0] = '?';

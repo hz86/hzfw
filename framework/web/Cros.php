@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
 /**
+ * 跨域
  * Class Cros
  * @package hzfw\web
  */

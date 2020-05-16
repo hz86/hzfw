@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\core;
 
 /**
@@ -11,20 +12,19 @@ class ServiceCollection extends BaseObject
 {
     /**
      * 服务数组
-     * @var array
+     * @var array ["class" => [ServiceCollectionItem, ...]]
      */
     public array $services = [];
 
     /**
      * 实例数组
-     * [obj,...]
-     * @var array
+     * @var array [ServiceInstanceItem, ...]
      */
     public array $instances = [];
 
     /**
      * 实例数组
-     * ["hash" => [obj,...]]
+     * ["hash" => [ServiceInstanceItem, ...]]
      * @var array
      */
     public array $scopeInstances = [];

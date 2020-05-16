@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\core;
 
 /**
@@ -11,7 +12,7 @@ class ServiceCollectionItem extends BaseObject
 {
     /**
      * 服务类型
-     * @var int
+     * @var int ServiceType
      */
     public int $type;
 
@@ -36,6 +37,7 @@ class ServiceCollectionItem extends BaseObject
      * @var array
      */
     public array $instances;
+
     /**
      * 初始化
      * ServiceCollectionItem constructor.

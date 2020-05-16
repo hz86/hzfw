@@ -1,5 +1,6 @@
 <?php 
 
+declare(strict_types=1);
 namespace hzfw\base;
 use hzfw\core\BaseObject;
 

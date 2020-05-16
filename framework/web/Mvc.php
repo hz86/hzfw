@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 use hzfw\core\ServiceCollection;
@@ -335,7 +336,7 @@ class Mvc extends BaseObject
         header("{$version} {$statusCode} {$statusText}", true);
 
         //多个
-        $delimiter = md5(uniqid('', true));
+        $delimiter = md5(uniqid((string)mt_rand(), true));
         header("Content-Type: multipart/byteranges; boundary={$delimiter}", true);
         $stream = $response->GetContentStream();
 

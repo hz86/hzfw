@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 use hzfw\core\UnknownClassException;
 use hzfw\core\UnknownParameterException;
 use hzfw;
 
-//视图
+/**
+ * 视图
+ * Class View
+ * @package hzfw\web
+ */
 class View extends BaseObject
 {
     /**

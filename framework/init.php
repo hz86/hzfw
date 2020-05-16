@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 use hzfw\core\ServiceProvider;
 use hzfw\core\ServiceCollection;
 use hzfw\core\UnknownClassException;

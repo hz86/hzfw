@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
 /**
+ * Csrf攻击防护
  * Class Csrf
  * @package hzfw\web
  */
@@ -29,7 +31,7 @@ class Csrf extends BaseObject
     
     /**
      * Csrf值
-     * @var string
+     * @var string|null
      */
     private ?string $csrfValue = null;
     
@@ -47,7 +49,7 @@ class Csrf extends BaseObject
         $this->httpContext = $httpContext;
         $this->cookieName = $config->Csrf->CookieName;
         $this->cookieDomain = $config->Csrf->CookieDomain;
-        $this->csrfValue = $httpContext->request->GetCookie($this->cookieName);
+        $this->csrfValue = $httpContext->request->GetCookie($this->cookieName, null);
     }
     
     /**
@@ -58,7 +60,7 @@ class Csrf extends BaseObject
     {
         if(null === $this->csrfValue)
         {
-            $this->csrfValue = sha1(uniqid(mt_rand(), true));
+            $this->csrfValue = sha1(uniqid((string)mt_rand(), true));
             $this->httpContext->response->AddCookie($this->cookieName, $this->csrfValue, [
                 'path' => '/',
                 'httponly' => true,
@@ -67,7 +69,7 @@ class Csrf extends BaseObject
             ]);
         }
         
-        $randValue = substr(sha1(uniqid(mt_rand(), true)), 0, 16);
+        $randValue = substr(sha1(uniqid((string)mt_rand(), true)), 0, 16);
         return $randValue . sha1($randValue . $this->csrfValue);
     }
     

@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
@@ -17,43 +18,43 @@ class Cookie extends BaseObject
     
     /**
      * 值
-     * @var string
+     * @var string|null
      */
     public ?string $value = null;
     
     /**
      * 域
-     * @var string
+     * @var string|null
      */
     public ?string $domain = null;
     
     /**
      * 路径
-     * @var string
+     * @var string|null
      */
     public ?string $path = null;
     
     /**
      * 超时（时间戳秒）
-     * @var integer
+     * @var integer|null
      */
     public ?int $expires = null;
     
     /**
      * 必须HTTPS
-     * @var bool
+     * @var bool|null
      */
     public ?bool $secure = null;
     
     /**
      * 只能HTTP传输，禁止js读取
-     * @var bool
+     * @var bool|null
      */
     public ?bool $httponly = null;
 
     /**
      * 限制第三方访问
-     * @var string Strict|Lax|None
+     * @var string|null Strict|Lax|None
      */
     public ?string $samesite = null;
 

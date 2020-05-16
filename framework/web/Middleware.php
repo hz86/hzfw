@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 namespace hzfw\web;
 use hzfw\core\BaseObject;
 
@@ -13,7 +14,7 @@ class Middleware extends BaseObject
     /**
      * 扩展覆盖此方法
      * @param $httpContext
-     * @param $next
+     * @param \Closure $next 需要继续执行才调用
      */
     public function Run(HttpContext $httpContext, \Closure $next): void
     {
