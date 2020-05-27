@@ -38,22 +38,45 @@ class Controller extends BaseObject
 
     /**
      * 执行动作前
-     * @param string $action
+     * @param ActionExecuteContext $context
      * @return ActionResult 返回非null则拦截
      */
-    public function OnBeforeAction(string $action): ?ActionResult
+    public function OnBeforeAction(ActionExecuteContext $context): ?ActionResult
     {
         return null;
     }
 
     /**
      * 执行动作后
-     * @param string $action
+     * @param ActionExecuteContext $context
      * @param ActionResult $result
      * @return ActionResult
      */
-    public function OnAfterAction(string $action, ActionResult $result): ActionResult
+    public function OnAfterAction(ActionExecuteContext $context, ActionResult $result): ActionResult
     {
+        return $result;
+    }
+
+    /**
+     * 执行动作
+     * @param ActionExecuteContext $context
+     * @return ActionResult
+     */
+    public function OnExecuteAction(ActionExecuteContext $context): ActionResult
+    {
+        // 动作执行前
+        $result = $this->OnBeforeAction($context);
+        if (null !== $result)
+        {
+            // 拦截
+            return $result;
+        }
+        
+        // 执行动作
+        $result = call_user_func_array([$this, $context->actionMethod], $context->actionArguments);
+        
+        // 动作执行后
+        $result = $this->OnAfterAction($context, $result);
         return $result;
     }
 

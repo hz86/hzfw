@@ -30,7 +30,7 @@ class ClientIp extends BaseObject
      * @param HttpRequest $httpRequest
      * @param array|null $whiteList ["::1", "127.0.0.1"]
      */
-    public function __construct (HttpRequest $httpRequest, array $whiteList = null)
+    public function __construct (HttpRequest $httpRequest, ?array $whiteList = null)
     {
         $this->whiteList = $whiteList;
         $this->httpRequest = $httpRequest;

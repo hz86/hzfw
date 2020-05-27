@@ -167,14 +167,30 @@ class Mvc extends BaseObject
         //COOKIE设置
         foreach ($response->GetCookieAll() as $v)
         {
-            setcookie($v->name, $v->value, [
-                'expires' => $v->expires,
-                'path' => $v->path,
-                'domain' => $v->domain,
-                'secure' => $v->secure,
-                'httponly' => $v->httponly,
-                'samesite' => $v->samesite
-            ]);
+            if (null === $v->value)
+            {
+                //删除COOKIE
+                setcookie($v->name, '', [
+                    'expires' => 1,
+                    'path' => $v->path,
+                    'domain' => $v->domain,
+                    'secure' => $v->secure,
+                    'httponly' => $v->httponly,
+                    'samesite' => $v->samesite
+                ]);
+            }
+            else
+            {
+                //设置COOKIE
+                setcookie($v->name, $v->value, [
+                    'expires' => $v->expires,
+                    'path' => $v->path,
+                    'domain' => $v->domain,
+                    'secure' => $v->secure,
+                    'httponly' => $v->httponly,
+                    'samesite' => $v->samesite
+                ]);
+            }
         }
     }
 

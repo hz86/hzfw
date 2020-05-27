@@ -184,14 +184,6 @@ class MvcMiddleware extends Middleware
         $obj->httpContext = $this->httpContext;
         $obj->route = $this->route;
 
-        //动作执行前
-        $result = call_user_func_array([$obj, 'OnBeforeAction'], [$action]);
-        if (null !== $result)
-        {
-            //拦截
-            return $result;
-        }
-
         //动作参数
         $actionParams = [];
         $routes = $this->route->GetRouteAll();
@@ -299,8 +291,17 @@ class MvcMiddleware extends Middleware
             }
         }
 
-        $result = call_user_func_array([$obj, $method], $actionParams);
-        $result = call_user_func_array([$obj, 'OnAfterAction'], [$action, $result]);
+        // 动作执行上下文
+        $context = new ActionExecuteContext();
+        {
+            $context->actionName = $action;
+            $context->actionMethod = $method;
+            $context->actionArguments = $actionParams;
+            $context->controller = $obj;
+        }
+
+        // 执行
+        $result = call_user_func([$obj, 'OnExecuteAction'], $context);
         return $result;
     }
 }
