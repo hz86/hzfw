@@ -63,29 +63,14 @@ class MvcMiddleware extends Middleware
                 throw new HttpException(404, 'route matching failed');
             }
 
-            try
-            {
-                //调用控制器
-                $result = $this->CallAction(
-                    $this->config->Mvc->ControllerNamespace,
-                    $route->GetControllerName(),
-                    $route->GetActionName());
+            //调用控制器
+            $result = $this->CallAction(
+                $this->config->Mvc->ControllerNamespace,
+                $route->GetControllerName(),
+                $route->GetActionName());
 
-                //执行动作结果
-                $result->ExecuteResult($this->httpContext);
-            }
-            catch (UnknownClassException $e) {
-                throw new HttpException(404, $e->getMessage(), $e);
-            }
-            catch (UnknownMethodException $e) {
-                throw new HttpException(404, $e->getMessage(), $e);
-            }
-            catch (UnknownParameterException $e) {
-                throw new HttpException(404, $e->getMessage(), $e);
-            }
-            catch (\Throwable $e) {
-                throw $e;
-            }
+            //执行动作结果
+            $result->ExecuteResult($this->httpContext);
         }
         catch (\Throwable $t)
         {
@@ -127,16 +112,23 @@ class MvcMiddleware extends Middleware
      * @param string $action
      * @param array $pars
      * @return ActionResult
-     * @throws UnknownClassException
-     * @throws UnknownMethodException
-     * @throws UnknownParameterException
      * @throws \ReflectionException
+     * @throws HttpException
      */
     private function CallAction(string $namespace, string $controller, string $action, array $pars = []): ActionResult
     {
         $method = $action;
         $class = "\\{$namespace}\\{$controller}Controller";
-        $reflection = new \ReflectionClass($class);
+        $reflection = null;
+
+        try
+        {
+            $reflection = new \ReflectionClass($class);
+        } 
+        catch (UnknownClassException $e)
+        {
+            throw new HttpException(404, $e->getMessage(), $e);
+        }
 
         //构造函数
         $constructorArgs = [];
@@ -153,7 +145,7 @@ class MvcMiddleware extends Middleware
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
-                    throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' not class");
+                    throw new HttpException(500, "class '{$class}' parameter '{$parameterName}' not class");
                 }
 
                 //获取对象
@@ -163,7 +155,7 @@ class MvcMiddleware extends Middleware
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
                     $parameterClassName = $parameterClass->getName();
-                    throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type '{$parameterClassName}' no service added");
+                    throw new HttpException(500, "class '{$class}' parameter '{$parameterName}' type '{$parameterClassName}' no service added");
                 }
 
                 $constructorArgs[] = $parameterObj;
@@ -175,7 +167,7 @@ class MvcMiddleware extends Middleware
         if (!($obj instanceof Controller))
         {
             $baseClass = Controller::ClassName();
-            throw new UnknownClassException("return class '{$class}' not an instanceof a class '{$baseClass}'");
+            throw new HttpException(500, "return class '{$class}' not an instanceof a class '{$baseClass}'");
         }
 
         //基础属性
@@ -192,14 +184,14 @@ class MvcMiddleware extends Middleware
         if (false === $reflection->hasMethod($method))
         {
             //方法不存在
-            throw new UnknownMethodException("class '{$class}' method '{$method}' not exist");
+            throw new HttpException(404, "class '{$class}' method '{$method}' not exist");
         }
 
         $reflectionMethod = $reflection->getMethod($method);
         if (!$reflectionMethod->isPublic())
         {
             //方法不是公开的
-            throw new UnknownMethodException("class '{$class}' method '{$method}' not public");
+            throw new HttpException(404, "class '{$class}' method '{$method}' not public");
         }
 
         $reflectionParameters = $reflectionMethod->getParameters();
@@ -233,7 +225,7 @@ class MvcMiddleware extends Middleware
                     if (!is_string($value))
                     {
                         //不是字符串
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no string");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no string");
                     }
                     $actionParams[$parameterName] = $value;
                 }
@@ -242,7 +234,7 @@ class MvcMiddleware extends Middleware
                     if (!is_array($value))
                     {
                         //不是数组
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no array");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no array");
                     }
                     $actionParams[$parameterName] = $value;
                 }
@@ -251,7 +243,7 @@ class MvcMiddleware extends Middleware
                     if (!(is_int($value) || (is_string($value) && 0 !== preg_match('/^[+-]?[0-9]+$/', $value))))
                     {
                         //不是整数
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no int");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no int");
                     }     
                     $actionParams[$parameterName] = (int)$value;
                 }
@@ -260,7 +252,7 @@ class MvcMiddleware extends Middleware
                     if (!(is_float($value) || (is_string($value) && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $value))))
                     {
                         //不是小数
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no float");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no float");
                     }
                     $actionParams[$parameterName] = (float)$value;
                 }
@@ -269,7 +261,7 @@ class MvcMiddleware extends Middleware
                     if (!(is_bool($value) || (is_string($value) && 0 !== preg_match('/^(true|false|[01])$/', $value))))
                     {
                         //不是布尔型
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no bool");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no bool");
                     }
                     $actionParams[$parameterName] = 'false' === $value ? false : ('true' === $value ? true : ('1' === $value ? true : false));
                 }
@@ -279,7 +271,7 @@ class MvcMiddleware extends Middleware
                     if (!($value instanceof $parameterClass))
                     {
                         //类型错误
-                        throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type no {$parameterType}");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no {$parameterType}");
                     }
                     $actionParams[$parameterName] = $value;
                 }
@@ -287,7 +279,7 @@ class MvcMiddleware extends Middleware
             else
             {
                 //参数不存在
-                throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' not exist");
+                throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' not exist");
             }
         }
 
