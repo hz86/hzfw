@@ -199,7 +199,8 @@ class MvcMiddleware extends Middleware
         {
             //获取参数名称和类型
             $parameterName = $reflectionParameter->getName();
-            $parameterType = $reflectionParameter->getType()->getName();
+            $parameterType = $reflectionParameter->getType();
+            $parameterTypeName = null !== $parameterType ? $parameterType->getName() : '';
 
             //获取参数值
             $value = isset($pars[$parameterName]) ? $pars[$parameterName] : null;
@@ -215,12 +216,12 @@ class MvcMiddleware extends Middleware
             }
             else if(null !== $value)
             {
-                if ('' === $parameterType)
+                if ('' === $parameterTypeName)
                 {
                     //通用型
                     $actionParams[$parameterName] = $value;
                 }
-                else if('string' === $parameterType)
+                else if('string' === $parameterTypeName)
                 {
                     if (!is_string($value))
                     {
@@ -229,7 +230,7 @@ class MvcMiddleware extends Middleware
                     }
                     $actionParams[$parameterName] = $value;
                 }
-                else if ('array' === $parameterType)
+                else if ('array' === $parameterTypeName)
                 {
                     if (!is_array($value))
                     {
@@ -238,7 +239,7 @@ class MvcMiddleware extends Middleware
                     }
                     $actionParams[$parameterName] = $value;
                 }
-                else if ('int' === $parameterType)
+                else if ('int' === $parameterTypeName)
                 {
                     if (!(is_int($value) || (is_string($value) && 0 !== preg_match('/^[+-]?[0-9]+$/', $value))))
                     {
@@ -247,7 +248,7 @@ class MvcMiddleware extends Middleware
                     }     
                     $actionParams[$parameterName] = (int)$value;
                 }
-                else if ('float' === $parameterType)
+                else if ('float' === $parameterTypeName)
                 {
                     if (!(is_float($value) || (is_string($value) && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $value))))
                     {
@@ -256,7 +257,7 @@ class MvcMiddleware extends Middleware
                     }
                     $actionParams[$parameterName] = (float)$value;
                 }
-                else if ('bool' === $parameterType)
+                else if ('bool' === $parameterTypeName)
                 {
                     if (!(is_bool($value) || (is_string($value) && 0 !== preg_match('/^(true|false|[01])$/', $value))))
                     {
@@ -271,7 +272,7 @@ class MvcMiddleware extends Middleware
                     if (!($value instanceof $parameterClass))
                     {
                         //类型错误
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no {$parameterType}");
+                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no {$parameterTypeName}");
                     }
                     $actionParams[$parameterName] = $value;
                 }
