@@ -515,4 +515,20 @@ class DateTimeOffset extends BaseObject
                 $obj->hour, $obj->minute, $obj->second,
                 $obj->microSecond, self::OffsetToTimeZone($obj->offset)));
     }
+    
+    private function __set(string $name, $value): void
+    {
+        $this->$name = $value;
+        if($name === "day")
+        {
+            $date = new DateTime(
+                sprintf("%02d-%02d-%02d %02d:%02d:%02d.%06d %s",
+                    $this->year, $this->month, $this->day,
+                    $this->hour, $this->minute, $this->second,
+                    $this->microSecond, self::OffsetToTimeZone($this->offset)));
+            $arr = explode(" ", $date->format("w z"));
+            $this->dayOfWeek = (int)$arr[0];
+            $this->dayOfYear = (int)$arr[1];
+        }
+    }
 }
