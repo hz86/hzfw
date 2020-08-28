@@ -24,12 +24,54 @@ class Model extends BaseObject
         else
         {
             $obj = new static();
+            $reflection = new \ReflectionClass($obj);
             
             foreach ($data as $key => $val)
             {
-                if (false !== property_exists($obj, $key))
+                if (false !== $reflection->hasProperty($key))
                 {
-                    $obj->$key = $val;
+                    $reflectionProperty = $reflection->getProperty($key);
+                    $propertyType = $reflectionProperty->getType();
+                    if (null !== $propertyType)
+                    {
+                        $valType = gettype($val);
+                        $propertyTypeName = $propertyType->getName();
+                        if ($propertyTypeName === $valType || ($propertyType->allowsNull() && 'NULL' === $valType))
+                        {
+                            $reflectionProperty->setValue($obj, $val);
+                        }
+                        else
+                        {
+                            if ('string' === $valType)
+                            {
+                                if ('int' === $propertyTypeName && 0 !== preg_match('/^[+-]?[0-9]+$/', $val))
+                                {
+                                    $val = (int)$val;
+                                }
+                                else if ('float' === $propertyTypeName && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $val))
+                                {
+                                    $val = (float)$val;
+                                }
+                                else if ('bool' === $propertyTypeName && 0 !== preg_match('/^(true|false|TRUE|FALSE|[01])$/', $val))
+                                {
+                                    $val = ('true' === $val || 'TRUE' === $val || '1' === $val);
+                                }
+                            }
+                            else if ('int' === $valType || 'float' === $valType || 'bool' === $valType)
+                            {
+                                if ('string' === $propertyTypeName)
+                                {
+                                    $val = (string)$val;
+                                }
+                            }
+                            
+                            $reflectionProperty->setValue($obj, $val);
+                        }
+                    }
+                    else
+                    {
+                        $reflectionProperty->setValue($obj, $val);
+                    }
                 }
             }
             
@@ -55,13 +97,11 @@ class Model extends BaseObject
     
     public function __get(string $name)
     {
-        if (property_exists($this, $name)) return $this->$name;
         throw new UnknownPropertyException("get unknown property '" . get_class($this) . "::{$name}'");
     }
     
     public function __set(string $name, $value): void
     {
-        if (property_exists($this, $name)) $this->$name = $value;
         throw new UnknownPropertyException("set unknown property '" . get_class($this) . "::{$name}'");
     }
     

@@ -94,11 +94,10 @@ class RedisCache extends Cache
      */
     public function SetValue(string $key, int $expiry, $value): bool
     {
-        $result = false;
         $data = serialize($value);
         $data = gzcompress($data, 1);
         $this->redis->set($key, $data, ['px' => $expiry]);
-        return $result;
+        return true;
     }
 
     /**

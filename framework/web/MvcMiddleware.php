@@ -203,18 +203,31 @@ class MvcMiddleware extends Middleware
             $parameterTypeName = null !== $parameterType ? $parameterType->getName() : '';
 
             //获取参数值
-            $value = isset($pars[$parameterName]) ? $pars[$parameterName] : null;
+            $hasValue = array_key_exists($parameterName, $pars);
+            $value = $hasValue ? $pars[$parameterName] : null;
 
-            //从路由和GET参数填充
-            if (null === $value) $value = isset($routes[$parameterName]) ? $routes[$parameterName] : null;
-            if (null === $value) $value = isset($querys[$parameterName]) ? $querys[$parameterName] : null;
-            if (null === $value && $reflectionParameter->isDefaultValueAvailable())
+            //从路由参数填充
+            if (false === $hasValue)
+            {
+                $hasValue = array_key_exists($parameterName, $routes);
+                $value = $hasValue ? $routes[$parameterName] : null;
+            }
+
+            //从GET参数填充
+            if (false === $hasValue)
+            {
+                $hasValue = array_key_exists($parameterName, $querys);
+                $value = $hasValue ? $querys[$parameterName] : null;
+            }
+
+            //是否默认值
+            if (false === $hasValue && $reflectionParameter->isDefaultValueAvailable())
             {
                 //使用默认值
                 $value = $reflectionParameter->getDefaultValue();
                 $actionParams[$parameterName] = $value;
             }
-            else if(null !== $value)
+            else if(false !== $hasValue)
             {
                 if ('' === $parameterTypeName)
                 {
@@ -245,7 +258,7 @@ class MvcMiddleware extends Middleware
                     {
                         //不是整数
                         throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no int");
-                    }     
+                    }
                     $actionParams[$parameterName] = (int)$value;
                 }
                 else if ('float' === $parameterTypeName)
@@ -259,12 +272,12 @@ class MvcMiddleware extends Middleware
                 }
                 else if ('bool' === $parameterTypeName)
                 {
-                    if (!(is_bool($value) || (is_string($value) && 0 !== preg_match('/^(true|false|[01])$/', $value))))
+                    if (!(is_bool($value) || (is_string($value) && 0 !== preg_match('/^(true|false|TRUE|FALSE|[01])$/', $value))))
                     {
                         //不是布尔型
                         throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no bool");
                     }
-                    $actionParams[$parameterName] = 'false' === $value ? false : ('true' === $value ? true : ('1' === $value ? true : false));
+                    $actionParams[$parameterName] = ('true' === $value || 'TRUE' === $value || '1' === $value);
                 }
                 else if (is_object($value))
                 {
