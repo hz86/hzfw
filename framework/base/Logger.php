@@ -206,14 +206,14 @@ class Logger extends BaseObject
                             @unlink($filename);
                         }
                     }
-                    catch (\Throwable $t)
+                    catch (\Throwable $e)
                     {
                         //忽略
                     }
                 });
             }
         }
-        catch (\Throwable $t)
+        catch (\Throwable $e)
         {
             //忽略
         }

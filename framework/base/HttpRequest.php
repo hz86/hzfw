@@ -41,10 +41,9 @@ class HttpRequest extends BaseObject
     public function Add(HttpRequestOptions $options): void
     {
         $ch = curl_init();
-        $key = spl_object_hash($options);
-        
         try
         {
+            $key = spl_object_hash($options);
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             
@@ -165,10 +164,10 @@ class HttpRequest extends BaseObject
             $this->map2["{$ch}"] = $options;
             $this->map1[$key] = $ch;
         }
-        catch (\Throwable $t)
+        catch (\Throwable $e)
         {
             curl_close($ch);
-            throw $t;
+            throw $e;
         }
     }
     
@@ -257,7 +256,7 @@ class HttpRequest extends BaseObject
                 }
             }
         }
-        catch (\Throwable $t)
+        catch (\Throwable $e)
         {
             while (null !== ($ch = array_pop($this->map1)))
             {
@@ -266,7 +265,7 @@ class HttpRequest extends BaseObject
                 curl_close($ch);
             }
             
-            throw $t;
+            throw $e;
         }
     }
     

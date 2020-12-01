@@ -71,7 +71,7 @@ class Database extends BaseObject
                 $this->conn->exec('SAVEPOINT trans'.($this->transactionRef - 1));
             }
         }
-        catch (\Exception $e)
+        catch (\Throwable $e)
         {
             $this->transactionRef--;
             throw $e;
@@ -93,7 +93,7 @@ class Database extends BaseObject
                 $this->conn->exec('RELEASE SAVEPOINT trans'.$this->transactionRef);
             }
         }
-        catch (\Exception $e)
+        catch (\Throwable $e)
         {
             $this->transactionRef++;
             throw $e;
@@ -115,7 +115,7 @@ class Database extends BaseObject
                 $this->conn->exec('ROLLBACK TO SAVEPOINT trans'.$this->transactionRef);
             }
         }
-        catch (\Exception $e)
+        catch (\Throwable $e)
         {
             $this->transactionRef++;
             throw $e;

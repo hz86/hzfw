@@ -72,7 +72,7 @@ class MvcMiddleware extends Middleware
             //执行动作结果
             $result->ExecuteResult($this->httpContext);
         }
-        catch (\Throwable $t)
+        catch (\Throwable $e)
         {
             //错误处理
             for ($level = ob_get_level(); $level > 0; $level--) {
@@ -92,11 +92,11 @@ class MvcMiddleware extends Middleware
             }
 
             $response->SetStatusCode(500);
-            if($t instanceof HttpException) $response->SetStatusCode($t->getCode());
+            if($e instanceof HttpException) $response->SetStatusCode($e->getCode());
 
             list($controller, $action) = explode('/', $this->config->Mvc->Error);
             $result = $this->CallAction($this->config->Mvc->ControllerNamespace, $controller, $action, [
-                'statusCode' => $response->GetStatusCode(), 'exception' => $t
+                'statusCode' => $response->GetStatusCode(), 'exception' => $e
             ]);
 
             $result->ExecuteResult($this->httpContext);
@@ -139,9 +139,9 @@ class MvcMiddleware extends Middleware
             $reflectionParameters = $reflectionMethod->getParameters();
             foreach ($reflectionParameters as $reflectionParameter)
             {
-                //获取类
-                $parameterClass = $reflectionParameter->getClass();
-                if (null === $parameterClass)
+                //获取类型
+                $parameterType = $reflectionParameter->getType();
+                if (null === $parameterType || false !== $parameterType->isBuiltin())
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
@@ -149,12 +149,12 @@ class MvcMiddleware extends Middleware
                 }
 
                 //获取对象
-                $parameterObj = $this->httpContext->requestServices->GetService($parameterClass->getName());
+                $parameterClassName = $parameterType->getName();
+                $parameterObj = $this->httpContext->requestServices->GetService($parameterClassName);
                 if (null === $parameterObj)
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
-                    $parameterClassName = $parameterClass->getName();
                     throw new HttpException(500, "class '{$class}' parameter '{$parameterName}' type '{$parameterClassName}' no service added");
                 }
 
@@ -281,8 +281,8 @@ class MvcMiddleware extends Middleware
                 }
                 else if (is_object($value))
                 {
-                    $parameterClass = $reflectionParameter->getClass()->getName();
-                    if (!($value instanceof $parameterClass))
+                    $parameterClassName = $reflectionParameter->getType()->getName();
+                    if (!($value instanceof $parameterClassName))
                     {
                         //类型错误
                         throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no {$parameterTypeName}");

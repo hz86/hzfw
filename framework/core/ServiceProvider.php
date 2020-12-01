@@ -245,9 +245,9 @@ class ServiceProvider extends BaseObject
             $reflectionParameters = $reflectionMethod->getParameters();
             foreach ($reflectionParameters as $reflectionParameter)
             {
-                //获取类
-                $parameterClass = $reflectionParameter->getClass();
-                if (null === $parameterClass)
+                //获取类型
+                $parameterType = $reflectionParameter->getType();
+                if (null === $parameterType || false !== $parameterType->isBuiltin())
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
@@ -255,12 +255,12 @@ class ServiceProvider extends BaseObject
                 }
 
                 //获取对象
-                $parameterInstance = $t->GetService($parameterClass->getName());
+                $parameterClassName = $parameterType->getName();
+                $parameterInstance = $t->GetService($parameterClassName);
                 if (null === $parameterInstance)
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
-                    $parameterClassName = $parameterClass->getName();
                     throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type '{$parameterClassName}' no service added");
                 }
 

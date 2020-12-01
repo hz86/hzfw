@@ -204,13 +204,13 @@ class FileCache extends Cache
                         @unlink($filename);
                     }
                 }
-                catch (\Throwable $t)
+                catch (\Throwable $e)
                 {
                     //忽略
                 }
             });
         }
-        catch (\Throwable $t)
+        catch (\Throwable $e)
         {
             //忽略
         }

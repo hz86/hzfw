@@ -87,7 +87,7 @@ class Mvc extends BaseObject
 
             $mvc->Run();
         }
-        catch (\Throwable $t)
+        catch (\Throwable $e)
         {
             for ($level = ob_get_level(); $level > 0; $level--) {
                 if (false === @ob_end_clean()) {
@@ -99,7 +99,7 @@ class Mvc extends BaseObject
             echo 'error occurred';
             if (HZFW_DEBUG)
             {
-                var_dump($t);
+                var_dump($e);
             }
         }
         finally

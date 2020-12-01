@@ -109,7 +109,6 @@ class View extends BaseObject
     {
         $out = '';
         ob_start();
-        ob_implicit_flush(0);
         
         extract(["content" => $this->ViewPartial($viewName, $model)], EXTR_OVERWRITE);
         include(hzfw::$path . "/{$this->config->Mvc->ViewPath}/Layouts/{$this->Layout}.php");
@@ -137,7 +136,6 @@ class View extends BaseObject
         
         $out = '';
         ob_start();
-        ob_implicit_flush(0);
         
         extract(["model" => $model], EXTR_OVERWRITE);
         include(hzfw::$path . "/{$this->config->Mvc->ViewPath}{$viewName}.php");
@@ -171,9 +169,9 @@ class View extends BaseObject
             $reflectionParameters = $reflectionMethod->getParameters();
             foreach ($reflectionParameters as $reflectionParameter)
             {
-                //获取类
-                $parameterClass = $reflectionParameter->getClass();
-                if (null === $parameterClass)
+                //获取类型
+                $parameterType = $reflectionParameter->getType();
+                if (null === $parameterType || false !== $parameterType->isBuiltin())
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
@@ -181,12 +179,12 @@ class View extends BaseObject
                 }
 
                 //获取对象
-                $parameterObj = $this->httpContext->requestServices->GetService($parameterClass->getName());
+                $parameterClassName = $parameterType->getName();
+                $parameterObj = $this->httpContext->requestServices->GetService($parameterClassName);
                 if (null === $parameterObj)
                 {
                     //获取失败
                     $parameterName = $reflectionParameter->getName();
-                    $parameterClassName = $parameterClass->getName();
                     throw new UnknownParameterException("class '{$class}' parameter '{$parameterName}' type '{$parameterClassName}' no service added");
                 }
 
@@ -206,7 +204,7 @@ class View extends BaseObject
         $obj->httpContext = $this->httpContext;
         $obj->route = $this->route;
 
-        return call_user_func_array([$obj, 'Run'], ["model" => $model]);
+        return call_user_func_array([$obj, 'Run'], [$model]);
     }
     
     /**

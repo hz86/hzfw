@@ -63,7 +63,7 @@ class FileLock extends Lock
                 throw new \Exception("lock file failed");
             }
         }
-        catch (\Exception $e)
+        catch (\Throwable $e)
         {
             fclose($fp);
             throw $e;
