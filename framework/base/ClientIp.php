@@ -17,7 +17,7 @@ class ClientIp extends BaseObject
      * 白名单
      * @var array|null
      */
-    private array $whiteList = null;
+    private ?array $whiteList = null;
     
     /**
      * 请求信息

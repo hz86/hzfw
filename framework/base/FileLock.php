@@ -41,7 +41,7 @@ class FileLock extends Lock
      * @return FileLockResult FileLockResult->UnLock();
      * @throws \Exception
      */
-    public function Lock(string $key, int $mode): FileLockResult
+    public function Lock(string $key, int $mode): LockResult
     {
         $path = $this->GetPath($key);
         $dirPath = substr($path, 0, strrpos($path, '/'));

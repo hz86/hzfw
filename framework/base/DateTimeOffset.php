@@ -516,7 +516,7 @@ class DateTimeOffset extends BaseObject
                 $obj->microSecond, self::OffsetToTimeZone($obj->offset)));
     }
     
-    private function __set(string $name, $value): void
+    public function __set(string $name, $value): void
     {
         $this->$name = $value;
         if($name === "day")
