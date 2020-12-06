@@ -273,3 +273,9 @@ spl_autoload_register (function (string $class): void
         throw new UnknownClassException("class not exist '{$class}', file '{$filename}'");
     }
 });
+
+//IIS 地址编码问题
+//采用基于重写模块原始URL
+if(isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
+    $_SERVER['REQUEST_URI'] = $_SERVER['HTTP_X_ORIGINAL_URL'];
+}
