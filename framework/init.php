@@ -268,7 +268,7 @@ spl_autoload_register (function (string $class): void
     $filename = hzfw::ExpandClassAliasString($class);
     $filename = str_replace('\\', '/', hzfw::$path . '/' . $filename) . '.php';
 
-    require_once $filename;
+    include $filename;
     if (!class_exists($class, false) && !interface_exists($class, false) && !trait_exists($class, false)) {
         throw new UnknownClassException("class not exist '{$class}', file '{$filename}'");
     }
