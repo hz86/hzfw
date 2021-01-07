@@ -34,39 +34,54 @@ class Model extends BaseObject
                     $propertyType = $reflectionProperty->getType();
                     if (null !== $propertyType)
                     {
+                        $propertyTypes = [];
                         $valType = gettype($val);
-                        $propertyTypeName = $propertyType->getName();
-                        if ($propertyTypeName === $valType || ($propertyType->allowsNull() && 'NULL' === $valType))
+                        
+                        if ($propertyType instanceof \ReflectionUnionType)
                         {
-                            $reflectionProperty->setValue($obj, $val);
+                            $propertyTypes = $propertyType->getTypes();
                         }
                         else
                         {
-                            if ('string' === $valType)
-                            {
-                                if ('int' === $propertyTypeName && 0 !== preg_match('/^[+-]?[0-9]+$/', $val))
-                                {
-                                    $val = (int)$val;
-                                }
-                                else if ('float' === $propertyTypeName && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $val))
-                                {
-                                    $val = (float)$val;
-                                }
-                                else if ('bool' === $propertyTypeName && 0 !== preg_match('/^(true|false|TRUE|FALSE|[01])$/', $val))
-                                {
-                                    $val = ('true' === $val || 'TRUE' === $val || '1' === $val);
-                                }
-                            }
-                            else if ('int' === $valType || 'float' === $valType || 'bool' === $valType)
-                            {
-                                if ('string' === $propertyTypeName)
-                                {
-                                    $val = (string)$val;
-                                }
-                            }
-                            
-                            $reflectionProperty->setValue($obj, $val);
+                            $propertyTypes = [$propertyType];
                         }
+                        
+                        if ('NULL' !== $valType)
+                        {
+                            foreach ($propertyTypes as $propertyType)
+                            {
+                                $propertyTypeName = $propertyType->getName();
+                                
+                                if ('string' === $valType)
+                                {
+                                    if ('int' === $propertyTypeName && 0 !== preg_match('/^[+-]?[0-9]+$/', $val))
+                                    {
+                                        $val = (int)$val;
+                                        break;
+                                    }
+                                    else if ('float' === $propertyTypeName && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $val))
+                                    {
+                                        $val = (float)$val;
+                                        break;
+                                    }
+                                    else if ('bool' === $propertyTypeName && 0 !== preg_match('/^(true|false|TRUE|FALSE|[01])$/', $val))
+                                    {
+                                        $val = ('true' === $val || 'TRUE' === $val || '1' === $val);
+                                        break;
+                                    }
+                                }
+                                else if ('integer' === $valType || 'double' === $valType || 'float' === $valType || 'boolean' === $valType)
+                                {
+                                    if ('string' === $propertyTypeName)
+                                    {
+                                        $val = (string)$val;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        $reflectionProperty->setValue($obj, $val);
                     }
                     else
                     {
