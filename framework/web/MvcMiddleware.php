@@ -200,7 +200,17 @@ class MvcMiddleware extends Middleware
             //获取参数名称和类型
             $parameterName = $reflectionParameter->getName();
             $parameterType = $reflectionParameter->getType();
-            $parameterTypeName = null !== $parameterType ? $parameterType->getName() : '';
+
+            //支持联合类型
+            $parameterTypes = [];
+            if ($parameterType instanceof \ReflectionUnionType)
+            {
+                $parameterTypes = $parameterType->getTypes();
+            }
+            else
+            {
+                $parameterTypes = [$parameterType];
+            }
 
             //获取参数值
             $hasValue = array_key_exists($parameterName, $pars);
@@ -225,70 +235,61 @@ class MvcMiddleware extends Middleware
             {
                 //使用默认值
                 $value = $reflectionParameter->getDefaultValue();
-                $actionParams[$parameterName] = $value;
+                $hasValue = true;
             }
-            else if(false !== $hasValue)
+
+            //填充
+            if (false === $hasValue)
             {
-                if ('' === $parameterTypeName)
+                foreach ($parameterTypes as $parameterType)
                 {
-                    //通用型
-                    $actionParams[$parameterName] = $value;
-                }
-                else if('string' === $parameterTypeName)
-                {
-                    if (!is_string($value))
+                    if($parameterType->allowsNull())
                     {
-                        //不是字符串
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no string");
+                        $hasValue = true;
+                        $value = null;
                     }
-                    $actionParams[$parameterName] = $value;
                 }
-                else if ('array' === $parameterTypeName)
+            }
+
+            if (false !== $hasValue)
+            {
+                //类型适配
+                foreach ($parameterTypes as $parameterType)
                 {
-                    if (!is_array($value))
+                    $parameterTypeName = null !== $parameterType ? $parameterType->getName() : null;
+                    if (null !== $parameterTypeName)
                     {
-                        //不是数组
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no array");
+                        if (is_string($value))
+                        {
+                            if ('int' === $parameterTypeName && 0 !== preg_match('/^[+-]?[0-9]+$/', $value))
+                            {
+                                $value = (int)$value;
+                                break;
+                            }
+                            else if ('float' === $parameterTypeName && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $value))
+                            {
+                                $value = (float)$value;
+                                break;
+                            }
+                            else if ('bool' === $parameterTypeName && 0 !== preg_match('/^(true|false|TRUE|FALSE|[01])$/', $value))
+                            {
+                                $value = ('true' === $value || 'TRUE' === $value || '1' === $value);
+                                break;
+                            }
+                        }
+                        else if (is_int($value) || is_float($value) || is_bool($value))
+                        {
+                            if ('string' === $parameterTypeName)
+                            {
+                                $value = (string)$value;
+                                break;
+                            }
+                        }
                     }
-                    $actionParams[$parameterName] = $value;
                 }
-                else if ('int' === $parameterTypeName)
-                {
-                    if (!(is_int($value) || (is_string($value) && 0 !== preg_match('/^[+-]?[0-9]+$/', $value))))
-                    {
-                        //不是整数
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no int");
-                    }
-                    $actionParams[$parameterName] = (int)$value;
-                }
-                else if ('float' === $parameterTypeName)
-                {
-                    if (!(is_float($value) || (is_string($value) && 0 !== preg_match('/^[+-]?([0-9]+|[0-9]+[\.][0-9]+)(E[+-]?[0-9]+)?$/i', $value))))
-                    {
-                        //不是小数
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no float");
-                    }
-                    $actionParams[$parameterName] = (float)$value;
-                }
-                else if ('bool' === $parameterTypeName)
-                {
-                    if (!(is_bool($value) || (is_string($value) && 0 !== preg_match('/^(true|false|TRUE|FALSE|[01])$/', $value))))
-                    {
-                        //不是布尔型
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no bool");
-                    }
-                    $actionParams[$parameterName] = ('true' === $value || 'TRUE' === $value || '1' === $value);
-                }
-                else if (is_object($value))
-                {
-                    $parameterClassName = $reflectionParameter->getType()->getName();
-                    if (!($value instanceof $parameterClassName))
-                    {
-                        //类型错误
-                        throw new HttpException(404, "class '{$class}' parameter '{$parameterName}' type no {$parameterTypeName}");
-                    }
-                    $actionParams[$parameterName] = $value;
-                }
+                
+                //动作参数
+                $actionParams[$parameterName] = $value;
             }
             else
             {

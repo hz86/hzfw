@@ -25,7 +25,7 @@ class HttpRequest extends BaseObject
     {
         while (null !== ($ch = array_pop($this->map1)))
         {
-            unset($this->map2["{$ch}"]);
+            unset($this->map2[$this->GetObjectHash($ch)]);
             curl_multi_remove_handle($this->mh, $ch);
             curl_close($ch);
         }
@@ -43,7 +43,9 @@ class HttpRequest extends BaseObject
         $ch = curl_init();
         try
         {
-            $key = spl_object_hash($options);
+            $key1 = spl_object_hash($options);
+            $key2 = $this->GetObjectHash($ch);
+            
             curl_setopt($ch, CURLOPT_HEADER, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             
@@ -161,8 +163,8 @@ class HttpRequest extends BaseObject
             curl_setopt($ch, CURLOPT_TIMEOUT_MS, $options->timeout);
             
             curl_multi_add_handle($this->mh, $ch);
-            $this->map2["{$ch}"] = $options;
-            $this->map1[$key] = $ch;
+            $this->map2[$key2] = $options;
+            $this->map1[$key1] = $ch;
         }
         catch (\Throwable $e)
         {
@@ -177,12 +179,12 @@ class HttpRequest extends BaseObject
      */
     public function Remove(HttpRequestOptions $options): void
     {
-        $key = spl_object_hash($options);
-        if (isset($this->map1[$key]))
+        $key1 = spl_object_hash($options);
+        if (isset($this->map1[$key1]))
         {
-            $ch = $this->map1[$key];
-            unset($this->map1[$key]);
-            unset($this->map2["{$ch}"]);
+            $ch = $this->map1[$key1];
+            $key2 = $this->GetObjectHash($ch);
+            unset($this->map1[$key1]); unset($this->map2[$key2]);
             curl_multi_remove_handle($this->mh, $ch);
             curl_close($ch);
         }
@@ -221,7 +223,8 @@ class HttpRequest extends BaseObject
                     while(false !== ($item = curl_multi_info_read($this->mh)))
                     {
                         $ch = $item["handle"];
-                        $key = spl_object_hash($this->map2["{$ch}"]);
+                        $key2 = $this->GetObjectHash($ch);
+                        $key1 = spl_object_hash($this->map2[$key2]);
                         
                         try
                         {
@@ -243,12 +246,11 @@ class HttpRequest extends BaseObject
                                 $result->exception = new \Exception(curl_error($ch), curl_errno($ch));
                             }
                             
-                            $func($result, $this->map2["{$ch}"]);
+                            $func($result, $this->map2[$key2]);
                         }
                         finally
                         {
-                            unset($this->map1[$key]);
-                            unset($this->map2["{$ch}"]);
+                            unset($this->map1[$key1]); unset($this->map2[$key2]);
                             curl_multi_remove_handle($this->mh, $ch);
                             curl_close($ch);
                         }
@@ -260,7 +262,7 @@ class HttpRequest extends BaseObject
         {
             while (null !== ($ch = array_pop($this->map1)))
             {
-                unset($this->map2["{$ch}"]);
+                unset($this->map2[$this->GetObjectHash($ch)]);
                 curl_multi_remove_handle($this->mh, $ch);
                 curl_close($ch);
             }
@@ -418,5 +420,20 @@ class HttpRequest extends BaseObject
         }
         
         return $result;
+    }
+    
+    private function GetObjectHash($value): string
+    {
+        if (is_object($value))
+        {
+            return spl_object_hash($value);
+        }
+        
+        if (is_resource($value))
+        {
+            return sha1("{$value}");
+        }
+        
+        throw new \Exception("value is not an object or resource");
     }
 }
